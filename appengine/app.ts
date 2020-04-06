@@ -1,24 +1,10 @@
-// Copyright 2017 Google LLC
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 'use strict';
 
 // [START gae_node_request_example]
 import express from 'express';
 import { RobinhoodWebApi } from 'robinhood';
 import { async } from './helpers';
-import { sendCredentials } from './robinhood';
+import { getPositions, sendCredentials } from './robinhood';
 
 const app = express();
 
@@ -28,9 +14,27 @@ app.get('/', (req, res) => {
 });
 
 app.get('/user', async (req, res) => {
-  const authToken = robinhood.auth_token();
+  console.log('get user');
   const user = await async(robinhood.user);
   res.status(200).json(user);
+});
+
+app.get('/instruments', async (req, res) => {
+  console.log('get instruments');
+  const instruments = await async(robinhood.instruments, null);
+  res.status(200).json(instruments);
+});
+
+app.get('/positions', async (req, res) => {
+  console.log('get positions');
+  const positions = await getPositions();
+  res.status(200).json(positions);
+});
+
+app.get('/orders', async (req, res) => {
+  console.log('get orders');
+  const orders = await async(robinhood.orders, null);
+  res.status(200).json(orders);
 });
 
 // Start the server
