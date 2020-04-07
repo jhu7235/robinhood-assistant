@@ -21,6 +21,12 @@ app.get('/user', async (req, res) => {
   res.status(200).json(user);
 });
 
+app.get('/accounts', async (req, res) => {
+  console.log('get accounts');
+  const accounts = await robinhood.getAccounts();
+  res.status(200).json(accounts);
+});
+
 app.get('/instruments', async (req, res) => {
   console.log('get instruments');
   const instruments = await robinhood.getInstruments();

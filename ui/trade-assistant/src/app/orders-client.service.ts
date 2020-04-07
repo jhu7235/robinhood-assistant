@@ -88,8 +88,9 @@ export class OrdersClientService {
     //   return of(ordersResponse.results);
     // }
     return this.http.get<IRobinhoodOrderResponse>(this.baseUrl).pipe(map(orderResponse => {
-      // window.localStorage.setItem('orders', JSON.stringify(orderResponse));
+      // dev code to test run locally
+      window.localStorage.setItem('orders', JSON.stringify(orderResponse));
       return orderResponse.results;
-    }), skipWhile( v => !v ));
+    }), skipWhile(v => !v));
   }
 }

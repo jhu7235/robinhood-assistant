@@ -127,6 +127,7 @@ interface IRobinhoodInstrument {
  */
 class RobinhoodWrapper {
   private robinhood: RobinhoodWebApi;
+  // instrument cache
   private instruments: { [instrumentId: string]: Promise<IRobinhoodInstrument> } = {};
 
   constructor() {
@@ -160,16 +161,24 @@ class RobinhoodWrapper {
     return async(this.robinhood.user);
   }
 
+  public getAccounts() {
+    return async(this.robinhood.accounts);
+  }
+
   public getInstruments() {
     return async(this.robinhood.instruments, null);
   }
 
+  /**
+   * Fetch instrument from Robinhood if it's not already in cache
+   */
   public async getInstrument(instrumentId: string): Promise<IRobinhoodInstrument> {
     // check cache first
     if (!this.instruments[instrumentId]) {
       this.instruments[instrumentId] =  async(this.robinhood.url, instrumentId);
+      console.log('fetching instrument', (await this.instruments[instrumentId]).symbol);
     } else {
-      console.log('symbol in cache already', (await this.instruments[instrumentId]).symbol);
+      console.log('instrument in cache already', (await this.instruments[instrumentId]).symbol);
     }
     return this.instruments[instrumentId];
   }
