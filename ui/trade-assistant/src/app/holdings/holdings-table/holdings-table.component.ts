@@ -1,10 +1,17 @@
-import { Component, OnInit, ViewChild} from '@angular/core';
-import { IOrder, IExecution, OrdersClientService } from '../../shared/orders-client.service';
-import {MatPaginator} from '@angular/material/paginator';
-import {MatTableDataSource} from '@angular/material/table';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { IOrder, OrdersClientService, IRobinhoodExecution } from '../../shared/orders-client.service';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 
 const MS_PER_DAY = 86400000;
+
+interface IHolding extends Omit<IRobinhoodExecution, 'quantity'> {
+  symbol: string;
+  name: string;
+  side: string;
+  quantity: number;
+}
 
 /**
  * Table of holdings
@@ -15,12 +22,12 @@ const MS_PER_DAY = 86400000;
   styleUrls: ['./holdings-table.component.scss']
 })
 export class HoldingsTableComponent implements OnInit {
-  public holdings: IExecution[] = [];
+  public holdings: IHolding[] = [];
   // column order
   public displayedColumns: string[] = ['symbol', 'name', 'quantity', 'age'];
-  public dataSource: MatTableDataSource<IExecution>;
-  @ViewChild(MatPaginator, {static: false}) paginator: MatPaginator;
-  @ViewChild(MatSort, {static: false}) sort: MatSort;
+  public dataSource: MatTableDataSource<IHolding>;
+  @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
+  @ViewChild(MatSort, { static: false }) sort: MatSort;
 
   constructor(private ordersClient: OrdersClientService) { }
 
@@ -49,11 +56,12 @@ export class HoldingsTableComponent implements OnInit {
   /**
    * Gets all the executions from a order
    */
-  private ordersToExecutions(orders: IOrder[]): IExecution[] {
-    const executions: IExecution[] = [];
+  private ordersToExecutions(orders: IOrder[]): IHolding[] {
+    const executions: IHolding[] = [];
     orders.forEach(order => {
       executions.push(...order.executions.map((execution) => ({
         ...execution,
+        quantity: Number(execution.quantity),
         symbol: order.symbol,
         name: order.name,
         age: this.timestampToAge(execution.timestamp),
@@ -67,7 +75,7 @@ export class HoldingsTableComponent implements OnInit {
    * Builds holdings by compiling all executions chronologically.
    */
   private buildHoldings(orders: IOrder[]) {
-    const holdings: { [symbol: string]: IExecution[] } = {};
+    const holdings: { [symbol: string]: IHolding[] } = {};
     const executions = this.ordersToExecutions(orders);
 
     const sorted = executions.sort(this.sortByTimeStamp);
@@ -89,23 +97,19 @@ export class HoldingsTableComponent implements OnInit {
    * Modify holdings with sell executions.
    * Robinhood executes sell orders. first in, first out
    */
-  private removeSoldOrders(execution: IExecution, holding: IExecution[]) {
-    let holdingQuantity = Number(holding[0].quantity);
-    let executionQuantity = Number(execution.quantity);
-    let count = 0;
-    while (executionQuantity > 0) {
-      if (++count > 3) { throw new Error(); }
-      const diffQuantity = holdingQuantity - executionQuantity;
+  private removeSoldOrders(execution: IHolding, holding: IHolding[]) {
+    while (execution.quantity > 0) {
+      const diffQuantity = holding[0].quantity - execution.quantity;
 
       if (diffQuantity > 0) {
-        executionQuantity = 0;
-        holding[0].quantity = diffQuantity.toString();
+        execution.quantity = 0;
+        holding[0].quantity = diffQuantity;
       } else if (diffQuantity < 0) {
-        executionQuantity = diffQuantity;
+        execution.quantity = diffQuantity;
         holding.shift();
-        holdingQuantity = Number(holding[0].quantity) + diffQuantity;
+        holding[0].quantity = holding[0].quantity + diffQuantity;
       } else if (diffQuantity === 0) {
-        executionQuantity = 0;
+        execution.quantity = 0;
         holding.shift();
       }
     }
