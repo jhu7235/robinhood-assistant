@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild} from '@angular/core';
-import { IOrder, IExecution, OrdersClientService } from '../orders-client.service';
+import { IOrder, IExecution, OrdersClientService } from '../../shared/orders-client.service';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatTableDataSource} from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
