@@ -1,0 +1,33 @@
+{
+  "name": "robinhood-trade-history-appengine",
+  "version": "1.0.0",
+  "description": "node server for executing robinhood commands",
+  "main": "dist/app.js",
+  "directories": {
+    "test": "test"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "scripts": {
+    "start": "tsc && node .",
+    "test": "mocha --exit test/*.test.js"
+  },
+  "dependencies": {
+    "@types/request": "~2.48.3",
+    "cors": "^2.8.5",
+    "express": "^4.16.3",
+    "lodash": "^4.17.15",
+    "query-string": "^4.3.2",
+    "request": "^2.88.0",
+    "robinhood": "^1.6.5",
+    "typescript": "^3.8.3"
+  },
+  "devDependencies": {
+    "mocha": "^7.0.0",
+    "supertest": "^4.0.2",
+    "ts-node": "^8.8.2"
+  },
+  "author": "jhu7325@gmail.com",
+  "license": "ISC"
+}
