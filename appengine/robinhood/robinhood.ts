@@ -103,12 +103,31 @@ interface IOrder extends IRobinhoodOrder {
   symbol: string;
 }
 
+interface IRobinhoodInstrument {
+  min_tick_size: unknown;
+  splits: string; // url
+  margin_initial_ratio: string; // number
+  url: string;
+  quote: string; // url
+  symbol: string;
+  bloomberg_unique: string;
+  list_date: string; // date - '1990-01-02'
+  fundamentals: string; // url
+  state: string; // 'active'
+  day_trade_ratio: string; // number
+  tradeable: boolean;
+  maintenance_ratio: string; // number
+  id: string;
+  market: string; // url
+  name: string;
+}
+
 /**
  * Wrapper around robinhood npm library
  */
 class RobinhoodWrapper {
   private robinhood: RobinhoodWebApi;
-  private instrumentIdToSymbol: { [instrumentId: string]: Promise<string> } = {};
+  private instruments: { [instrumentId: string]: Promise<IRobinhoodInstrument> } = {};
 
   constructor() {
     this.sendCredentials();
@@ -120,7 +139,8 @@ class RobinhoodWrapper {
   public async getPositions() {
     const positionResponse: IRobinhoodPositionResponse = await async(this.robinhood.positions);
     const promises = positionResponse.results.map(async (position): Promise<IPosition> => {
-      return Object.assign({}, position, { symbol: await this.getSymbol(position.instrument) });
+      const instrument = await this.getInstrument(position.instrument);
+      return Object.assign({}, position, { symbol: instrument.symbol, name: instrument.name });
     });
     return Object.assign({}, positionResponse, { results: await Promise.all(promises) });
   }
@@ -136,10 +156,6 @@ class RobinhoodWrapper {
     return this.robinhood;
   }
 
-  public next(url: string) {
-
-  }
-
   public getUser() {
     return async(this.robinhood.user);
   }
@@ -148,19 +164,14 @@ class RobinhoodWrapper {
     return async(this.robinhood.instruments, null);
   }
 
-  /**
-   * Gets symbol if not cached
-   * TODO: cache the promise
-   */
-  public async getSymbol(instrumentId: string) {
+  public async getInstrument(instrumentId: string): Promise<IRobinhoodInstrument> {
     // check cache first
-    if (this.instrumentIdToSymbol[instrumentId]) {
-      console.log('symbol in cache already', this.instrumentIdToSymbol[instrumentId]);
-      return this.instrumentIdToSymbol[instrumentId];
+    if (!this.instruments[instrumentId]) {
+      this.instruments[instrumentId] =  async(this.robinhood.url, instrumentId);
+    } else {
+      console.log('symbol in cache already', (await this.instruments[instrumentId]).symbol);
     }
-    const instrument = await async(this.robinhood.url, instrumentId);
-    this.instrumentIdToSymbol[instrumentId] = instrument.symbol;
-    return instrument.symbol;
+    return this.instruments[instrumentId];
   }
 
   /**
@@ -172,7 +183,8 @@ class RobinhoodWrapper {
       : await async(this.robinhood.orders, null);
 
     const promises = ordersResponse.results.map(async (order): Promise<IOrder> => {
-      return Object.assign({}, order, { symbol: await this.getSymbol(order.instrument) });
+      const instrument = await this.getInstrument(order.instrument);
+      return Object.assign({}, order, { symbol: instrument.symbol, name: instrument.name });
     });
     const nextResults = ordersResponse.next ? (await this.getOrders(ordersResponse.next)).results : [];
     return Object.assign({}, ordersResponse, { results: [...await Promise.all(promises), ...nextResults] });

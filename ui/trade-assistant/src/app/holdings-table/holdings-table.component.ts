@@ -16,12 +16,18 @@ const MS_PER_DAY = 86400000;
 })
 export class HoldingsTableComponent implements OnInit {
   public holdings: IExecution[] = [];
-  public displayedColumns: string[] = ['symbol', 'quantity', 'age'];
+  // column order
+  public displayedColumns: string[] = ['symbol', 'name', 'quantity', 'age'];
   public dataSource: MatTableDataSource<IExecution>;
   @ViewChild(MatPaginator, {static: false}) paginator: MatPaginator;
   @ViewChild(MatSort, {static: false}) sort: MatSort;
 
   constructor(private ordersClient: OrdersClientService) { }
+
+  public applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
 
   public ngOnInit(): void {
     this.ordersClient.get().pipe().subscribe((orders) => {
@@ -49,6 +55,7 @@ export class HoldingsTableComponent implements OnInit {
       executions.push(...order.executions.map((execution) => ({
         ...execution,
         symbol: order.symbol,
+        name: order.name,
         age: this.timestampToAge(execution.timestamp),
         side: order.side,
       })));

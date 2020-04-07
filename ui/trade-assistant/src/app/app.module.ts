@@ -11,6 +11,8 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
 import { NumberPipe } from './number.pipe';
 import { MatSortModule } from '@angular/material/sort';
+import {MatInputModule} from '@angular/material/input';
+
 
 @NgModule({
   declarations: [
@@ -25,6 +27,7 @@ import { MatSortModule } from '@angular/material/sort';
     // import HttpClientModule after BrowserModule.
     HttpClientModule,
     MatPaginatorModule,
+    MatInputModule,
     MatTableModule,
     MatSortModule,
     BrowserAnimationsModule,

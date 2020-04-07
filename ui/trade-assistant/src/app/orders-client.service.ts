@@ -70,6 +70,7 @@ interface IRobinhoodOrder {
 
 export interface IOrder extends IRobinhoodOrder {
   symbol: string;
+  name: string;
 }
 
 @Injectable({
