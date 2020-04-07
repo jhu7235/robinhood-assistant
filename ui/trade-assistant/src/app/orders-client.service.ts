@@ -82,12 +82,12 @@ export class OrdersClientService {
 
   get() {
     // dev code to test run locally
-    const ordersResponse: IRobinhoodOrderResponse = JSON.parse(window.localStorage.getItem('orders'));
-    if (ordersResponse){
-      return of(ordersResponse.results);
-    }
+    // const ordersResponse: IRobinhoodOrderResponse = JSON.parse(window.localStorage.getItem('orders'));
+    // if (ordersResponse){
+    //   return of(ordersResponse.results);
+    // }
     return this.http.get<IRobinhoodOrderResponse>(this.baseUrl).pipe(map(orderResponse => {
-      window.localStorage.setItem('orders', JSON.stringify(orderResponse));
+      // window.localStorage.setItem('orders', JSON.stringify(orderResponse));
       return orderResponse.results;
     }), skipWhile( v => !v ));
   }

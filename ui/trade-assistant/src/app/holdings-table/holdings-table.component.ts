@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit} from '@angular/core';
+import { Component, OnInit, ViewChild} from '@angular/core';
 import { IOrder, IExecution, OrdersClientService } from '../orders-client.service';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatTableDataSource} from '@angular/material/table';
@@ -14,7 +14,7 @@ const MS_PER_DAY = 86400000;
   templateUrl: './holdings-table.component.html',
   styleUrls: ['./holdings-table.component.scss']
 })
-export class HoldingsTableComponent implements OnInit, AfterViewInit {
+export class HoldingsTableComponent implements OnInit {
   public holdings: IExecution[] = [];
   public displayedColumns: string[] = ['symbol', 'quantity', 'age'];
   public dataSource: MatTableDataSource<IExecution>;
