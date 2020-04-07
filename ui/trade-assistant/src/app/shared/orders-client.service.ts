@@ -11,7 +11,7 @@ interface IRobinhoodOrderResponse {
   results: IOrder[];
 }
 
-interface IRobinhoodExecution {
+export interface IRobinhoodExecution {
   price: string; // string number
   quantity: string; // string number
   settlement_date: string; // 2020-04-06
@@ -82,13 +82,7 @@ export class OrdersClientService {
   constructor(private http: HttpClient) { }
 
   get() {
-    // dev code to test run locally
-    // const ordersResponse: IRobinhoodOrderResponse = JSON.parse(window.localStorage.getItem('orders'));
-    // if (ordersResponse){
-    //   return of(ordersResponse.results);
-    // }
     return this.http.get<IRobinhoodOrderResponse>(this.baseUrl).pipe(map(orderResponse => {
-      // dev code to test run locally
       window.localStorage.setItem('orders', JSON.stringify(orderResponse));
       return orderResponse.results;
     }), skipWhile(v => !v));
