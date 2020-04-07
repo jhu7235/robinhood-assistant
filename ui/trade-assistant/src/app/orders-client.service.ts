@@ -1,10 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { map, skipWhile } from 'rxjs/operators';
+import { of } from 'rxjs';
+
 
 interface IRobinhoodOrderResponse {
   next: string;
   previous: string;
-  results: IRobinhoodOrder[];
+  // modified in the backend
+  results: IOrder[];
 }
 
 interface IRobinhoodExecution {
@@ -76,8 +80,15 @@ export class OrdersClientService {
 
   constructor(private http: HttpClient) { }
 
-  get(): Promise<IOrder[]> {
-    return (this.http.get(this.baseUrl).toPromise() as Promise<IRobinhoodOrderResponse>)
-      .then(orderResponse => orderResponse.results) as Promise<IOrder[]>;
+  get() {
+    // dev code to test run locally
+    const ordersResponse: IRobinhoodOrderResponse = JSON.parse(window.localStorage.getItem('orders'));
+    if (ordersResponse){
+      return of(ordersResponse.results);
+    }
+    return this.http.get<IRobinhoodOrderResponse>(this.baseUrl).pipe(map(orderResponse => {
+      window.localStorage.setItem('orders', JSON.stringify(orderResponse));
+      return orderResponse.results;
+    }), skipWhile( v => !v ));
   }
 }

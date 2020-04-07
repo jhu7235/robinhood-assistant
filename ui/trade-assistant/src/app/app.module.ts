@@ -5,17 +5,29 @@ import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { OrdersDashboardComponent } from './orders-dashboard/orders-dashboard.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { HoldingsTableComponent } from './holdings-table/holdings-table.component';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatTableModule } from '@angular/material/table';
+import { NumberPipe } from './number.pipe';
+import { MatSortModule } from '@angular/material/sort';
 
 @NgModule({
   declarations: [
     AppComponent,
-    OrdersDashboardComponent
+    OrdersDashboardComponent,
+    HoldingsTableComponent,
+    NumberPipe,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     // import HttpClientModule after BrowserModule.
     HttpClientModule,
+    MatPaginatorModule,
+    MatTableModule,
+    MatSortModule,
+    BrowserAnimationsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
