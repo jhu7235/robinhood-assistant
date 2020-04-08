@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { IOrder, OrdersClientService, IRobinhoodExecution } from '../../shared/orders-client.service';
+import { OrdersClientService } from '../../shared/orders-client.service';
 import { HoldingsService } from '../holdings.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
@@ -18,7 +18,7 @@ import { IHolding } from '../holdings.service';
 export class HoldingsTableComponent implements OnInit {
   public holdings: IHolding[] = [];
   // column order
-  public displayedColumns: string[] = ['symbol', 'name', 'quantity', 'age'];
+  public displayedColumns: string[] = ['symbol', 'name', 'quantity', 'age', 'timestamp'];
   public dataSource: MatTableDataSource<IHolding>;
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: false }) sort: MatSort;
