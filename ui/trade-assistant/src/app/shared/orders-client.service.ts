@@ -82,6 +82,10 @@ export class OrdersClientService {
   constructor(private http: HttpClient) { }
 
   get() {
+    const response = JSON.parse(window.localStorage.getItem('orders'));
+    if (response) {
+      return of(response.results);
+    }
     return this.http.get<IRobinhoodOrderResponse>(this.baseUrl).pipe(map(orderResponse => {
       window.localStorage.setItem('orders', JSON.stringify(orderResponse));
       return orderResponse.results;

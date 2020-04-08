@@ -20,7 +20,7 @@
     <ng-container matColumnDef="quantity">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Quantity</th>
       <td mat-cell *matCellDef="let holding">
-        {{ holding.quantity | number }}
+        {{ holding.quantity }}
       </td>
     </ng-container>
 
@@ -39,3 +39,6 @@
     showFirstLastButtons
   ></mat-paginator>
 </div>
+<p *ngIf="filterValue">
+  Total: {{totalQuantity}}
+</p>
