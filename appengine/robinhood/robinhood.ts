@@ -2,6 +2,12 @@ import fs from "fs";
 import Robinhood, { RobinhoodWebApi } from "robinhood";
 import { async } from "../helpers";
 
+interface IRobinhoodResponse<T> {
+  next: string;
+  previous: string;
+  results: T[];
+}
+
 interface IRobinhoodPositionResponse {
   next: string;
   previous: string;
@@ -101,22 +107,48 @@ interface IOrder extends IRobinhoodOrder {
 }
 
 interface IRobinhoodInstrument {
-  min_tick_size: unknown;
-  splits: string; // url
-  margin_initial_ratio: string; // number
-  url: string;
+  id: string;
+  url: string; // url
   quote: string; // url
+  fundamentals: string; // url
+  splits: string; // url
+  state: string; // 'active' | 'inactive
+  market: string; // url
+  simple_name: string;
+  name: string;
+  tradeable: true;
+  tradability: string; // 'tradable' | 'untradable'
   symbol: string;
   bloomberg_unique: string;
-  list_date: string; // date - '1990-01-02'
-  fundamentals: string; // url
-  state: string; // 'active'
-  day_trade_ratio: string; // number
-  tradeable: boolean;
+  margin_initial_ratio: string; // number
   maintenance_ratio: string; // number
-  id: string;
-  market: string; // url
-  name: string;
+  country: string;
+  day_trade_ratio: string; // number
+  list_date: string; // date yyyy-mm-dd
+  min_tick_size: null;
+  type: '';
+  tradable_chain_id: null;
+  rhs_tradability: string; // 'tradable' | 'untradable'
+  fractional_tradability: string; // 'tradable' | 'untradable'
+  default_collar_fraction: string; // number
+}
+
+interface IRobinhoodQuote {
+  ask_price: string; // number
+  ask_size: number;
+  bid_price: string; // number
+  bid_size: number;
+  last_trade_price: string; // number
+  last_extended_hours_trade_price: string; // number
+  previous_close: string; // number
+  adjusted_previous_close: string; // number
+  previous_close_date: string; // date yyyy-mm-dd
+  symbol: string;
+  trading_halted: boolean;
+  has_traded: boolean;
+  last_trade_price_source: "consolidated";
+  updated_at: string; // iso date string
+  instrument: string; // url
 }
 
 /**
@@ -138,7 +170,7 @@ class RobinhoodWrapper {
     const positionResponse: IRobinhoodPositionResponse = await async(this.robinhood.positions);
     const promises = positionResponse.results.map(async (position): Promise<IPosition> => {
       const instrument = await this.getInstrument(position.instrument);
-      return Object.assign({}, position, { symbol: instrument.symbol, name: instrument.name });
+      return Object.assign({}, position, { symbol: instrument.symbol, name: instrument.simple_name });
     });
     return Object.assign({}, positionResponse, { results: await Promise.all(promises) });
   }
@@ -158,12 +190,21 @@ class RobinhoodWrapper {
     return async(this.robinhood.user);
   }
 
+  public getQuote(symbol: string) {
+    return async(this.robinhood.quote_data, symbol);
+  }
+
   public getAccounts() {
     return async(this.robinhood.accounts);
   }
 
-  public getInstruments() {
-    return async(this.robinhood.instruments, null);
+  /**
+   * Gets all the instruments for a user
+   */
+  public async getInstruments(): Promise<IRobinhoodInstrument[]> {
+    await this.getOrders();
+    return Promise.all(Object.values(this.instruments));
+    // return async(this.robinhood.instruments, null);
   }
 
   /**
@@ -172,7 +213,11 @@ class RobinhoodWrapper {
   public async getInstrument(instrumentId: string): Promise<IRobinhoodInstrument> {
     // check cache first
     if (!this.instruments[instrumentId]) {
-      this.instruments[instrumentId] =  async(this.robinhood.url, instrumentId);
+      this.instruments[instrumentId] = async(this.robinhood.url, instrumentId)
+        .then(async (instrument: IRobinhoodInstrument) => {
+          instrument.fundamentals = await async(this.robinhood.url, `${instrument.fundamentals}/${instrument.symbol}`);
+          return instrument;
+        });
       console.log('fetching instrument', (await this.instruments[instrumentId]).symbol);
     } else {
       console.log('instrument in cache already', (await this.instruments[instrumentId]).symbol);
@@ -190,7 +235,7 @@ class RobinhoodWrapper {
 
     const promises = ordersResponse.results.map(async (order): Promise<IOrder> => {
       const instrument = await this.getInstrument(order.instrument);
-      return Object.assign({}, order, { symbol: instrument.symbol, name: instrument.name });
+      return Object.assign({}, order, { symbol: instrument.symbol, name: instrument.simple_name });
     });
     const nextResults = ordersResponse.next ? (await this.getOrders(ordersResponse.next)).results : [];
     return Object.assign({}, ordersResponse, { results: [...await Promise.all(promises), ...nextResults] });

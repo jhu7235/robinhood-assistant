@@ -21,6 +21,12 @@ app.get('/user', async (req, res) => {
   res.status(200).json(user);
 });
 
+app.get('/quote/:symbol', async (req, res) => {
+  console.log('get quote: ', req.params.symbol);
+  const quote = await robinhood.getQuote(req.params.symbol);
+  res.status(200).json(quote);
+});
+
 app.get('/accounts', async (req, res) => {
   console.log('get accounts');
   const accounts = await robinhood.getAccounts();
