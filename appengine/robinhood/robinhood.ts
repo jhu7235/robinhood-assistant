@@ -51,9 +51,6 @@ interface IRobinhoodExecution {
   timestamp: string; // iso date string
   id: string;
 }
-interface IExecution extends IRobinhoodExecution {
-  symbol: string;
-}
 
 interface IRobinhoodOrder {
   id: string;

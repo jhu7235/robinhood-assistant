@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { IOrder, IRobinhoodExecution } from '../shared/orders-client.service';
+import { IOrder, IRobinhoodOrder, IRobinhoodExecution } from '../shared/orders-client.service';
 
 
 const MS_PER_DAY = 86400000;
