@@ -1,5 +1,13 @@
-<p>{{ instrument.symbol }}</p>
-<p>{{ instrument.simple_name }}</p>
-<p>Price:</p>
-<pre>{{ quote | json }}</pre>
-<mat-divider></mat-divider>
+<div class="grid">
+  <div class="column">
+    <p>{{ instrument.symbol }}</p>
+    <p>{{ instrument.simple_name }}</p>
+  </div>
+  <div class="column" *ngIf="quote">
+    <p>Ask: {{ quote.ask_size }} @ {{ quote.ask_price | currency }}</p>
+    <p>Bid: {{ quote.bid_size }} @ {{ quote.bid_price | currency }}</p>
+  </div>
+  <div class="column">
+    <p *ngIf="quote">Market: {{ quote.last_trade_price | currency }}</p>
+  </div>
+</div>

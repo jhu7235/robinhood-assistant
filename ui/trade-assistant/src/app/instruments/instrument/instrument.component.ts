@@ -15,6 +15,6 @@ export class InstrumentComponent implements OnInit {
 
   ngOnInit(): void {
     this.quotesClientService.get(this.instrument.symbol)
-      .subscribe((quote) => (this.quote = quote));
+      .subscribe((quote) => (this.quote = quote[0]));
   }
 }

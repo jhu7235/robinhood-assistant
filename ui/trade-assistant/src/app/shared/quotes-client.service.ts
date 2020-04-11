@@ -4,40 +4,25 @@ import { skipWhile, map } from 'rxjs/operators';
 import { Observable, of } from 'rxjs';
 
 interface IRobinhoodQuoteResponse {
-  results: IRobinhoodQuote;
+  results: IRobinhoodQuote[];
 }
 
 export interface IRobinhoodQuote {
-  id: string;
-  url: string; // url
-  quote: string; // url
-  fundamentals: string; // url
-  splits: string; // url
-  state: string; // 'active' | 'inactive
-  market: string; // url
-  simple_name: string;
-  name: string;
-  tradeable: true;
-  tradability: string; // 'tradable' | 'untradable'
+  ask_price: string; // number
+  ask_size: number;
+  bid_price: string; // number
+  bid_size: number;
+  last_trade_price: string; // number
+  last_extended_hours_trade_price: string; // number
+  previous_close: string; // number
+  adjusted_previous_close: string; // number
+  previous_close_date: string; // date yyyy-mm-dd
   symbol: string;
-  bloomberg_unique: string;
-  margin_initial_ratio: string; // number
-  maintenance_ratio: string; // number
-  country: string;
-  day_trade_ratio: string; // number
-  list_date: string; // date yyyy-mm-dd
-  min_tick_size: null;
-  type: '';
-  tradable_chain_id: null;
-  rhs_tradability: string; // 'tradable' | 'untradable'
-  fractional_tradability: string; // 'tradable' | 'untradable'
-  default_collar_fraction: string; // number
-}
-
-
-export interface IQuote extends IRobinhoodQuote {
-  symbol: string;
-  name: string;
+  trading_halted: boolean;
+  has_traded: boolean;
+  last_trade_price_source: string; // 'consolidated'
+  updated_at: string; // isoDateString
+  instrument: string; // url
 }
 
 @Injectable({
@@ -50,16 +35,13 @@ export class QuotesClientService {
   constructor(private http: HttpClient) { }
 
   /**
-   * Using IQuotes instead of IRobinhoodQuotes because it's been  modified to include instrument details
+   * Using IQuotes instead of IRobinhoodQuotes because it's been modified to
+   * include instrument details.
    */
-  get(symbol: string): Observable<IRobinhoodQuote> {
+  get(symbol: string): Observable<IRobinhoodQuote[]> {
     const response: IRobinhoodQuoteResponse = JSON.parse(window.localStorage.getItem('quote'));
-    if (response) {
-      return of(response.results);
-    }
     return this.http.get<IRobinhoodQuoteResponse>(`${this.baseUrl}/${symbol}`)
       .pipe(map(quoteResponse => {
-        window.localStorage.setItem('quote', JSON.stringify(quoteResponse));
         return quoteResponse.results;
       }), skipWhile(v => !v));
   }
