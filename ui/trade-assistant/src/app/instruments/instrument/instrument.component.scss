@@ -1,15 +1,33 @@
+@import "./../../shared/scss/mixins";
+
 .row {
   display: flex;
   justify-content: space-between;
   width: 100%;
 }
 
-.column {
-  display: flex;
-  flex-direction: column;
+.cell {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  > p {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
-.grid {
+.instrument-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
+  column-gap: 10px;
+}
+
+.quote-grid {
+  padding-right: 10%;
+  @include md {
+    padding-right: 50%;
+  }
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
 }

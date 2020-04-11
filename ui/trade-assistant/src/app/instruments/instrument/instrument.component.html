@@ -1,13 +1,25 @@
-<div class="grid">
-  <div class="column">
+<div class="instrument-grid">
+  <div class="cell">
     <p>{{ instrument.symbol }}</p>
     <p>{{ instrument.simple_name }}</p>
   </div>
-  <div class="column" *ngIf="quote">
-    <p>Ask: {{ quote.ask_size }} @ {{ quote.ask_price | currency }}</p>
-    <p>Bid: {{ quote.bid_size }} @ {{ quote.bid_price | currency }}</p>
+  <div class="quote-grid" *ngIf="quote">
+    <div><p>Ask:</p></div>
+    <div>
+      <p>{{ quote.ask_size }}</p>
+    </div>
+    <div>
+      <p>{{ quote.ask_price | currency }}</p>
+    </div>
+    <div><p>Bid:</p></div>
+    <div>
+      <p>{{ quote.bid_size }}</p>
+    </div>
+    <div>
+      <p>{{ quote.bid_price | currency }}</p>
+    </div>
   </div>
-  <div class="column">
+  <div class="cell">
     <p *ngIf="quote">Market: {{ quote.last_trade_price | currency }}</p>
   </div>
 </div>

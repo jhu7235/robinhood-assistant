@@ -7,15 +7,8 @@ import { InstrumentsClientService, IInstrument } from '../shared/instruments-cli
   styleUrls: ['./instruments.component.scss']
 })
 export class InstrumentsComponent implements OnInit {
-  public instruments: IInstrument[];
-
   constructor(private instrumentsClientService: InstrumentsClientService) { }
 
   public ngOnInit(): void {
-    this.instrumentsClientService.get().subscribe((instruments) => {
-      console.log({ instruments });
-      this.instruments = instruments;
-    });
   }
-
 }

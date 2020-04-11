@@ -1,4 +1,8 @@
-.holdings-container{
-  padding: 10px 5% 20px 5%;
+@import "../shared/scss/mixins";
+
+.holdings-container {
+  @include md {
+    padding: 10px 5% 20px 5%;
+  }
   height: 100%;
 }
