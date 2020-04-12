@@ -31,12 +31,6 @@ export interface IRobinhoodInstrument {
   default_collar_fraction: string; // number
 }
 
-
-export interface IInstrument extends IRobinhoodInstrument {
-  symbol: string;
-  name: string;
-}
-
 @Injectable({
   providedIn: 'root'
 })
@@ -47,9 +41,9 @@ export class InstrumentsClientService {
   constructor(private http: HttpClient) { }
 
   /**
-   * Using IInstruments instead of IRobinhoodInstruments because it's been  modified to include instrument details
+   * Using IRobinhoodInstrument instead of IRobinhoodInstruments because it's been  modified to include instrument details
    */
-  get(): Observable<IInstrument[]> {
+  get(): Observable<IRobinhoodInstrument[]> {
     const response: IRobinhoodInstrument[] = JSON.parse(window.localStorage.getItem('instruments'));
     if (response) {
       return of(response);

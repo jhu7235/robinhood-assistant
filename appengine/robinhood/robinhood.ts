@@ -1,155 +1,13 @@
 import fs from "fs";
 import Robinhood, { RobinhoodWebApi } from "robinhood";
 import { async } from "../helpers";
-
-interface IRobinhoodResponse<T> {
-  next: string;
-  previous: string;
-  results: T[];
-}
-
-interface IRobinhoodPositionResponse {
-  next: string;
-  previous: string;
-  results: IRobinhoodPosition[];
-}
-
-interface IRobinhoodPosition {
-  url: string;
-  instrument: string; // url
-  account: string;
-  account_number: string;
-  average_buy_price: string;
-  pending_average_buy_price: string;
-  quantity: string;
-  intraday_average_buy_price: string;
-  intraday_quantity: string;
-  shares_held_for_buys: string;
-  shares_held_for_sells: string;
-  shares_held_for_stock_grants: string;
-  shares_held_for_options_collateral: string;
-  shares_held_for_options_events: string;
-  shares_pending_from_options_events: string;
-  updated_at: string; // timestamp
-  created_at: string; // timestamp
-}
-
-interface IPosition extends IRobinhoodPosition {
-  symbol: string;
-}
-
-interface IRobinhoodOrdersResponse {
-  next: string;
-  previous: string;
-  results: IRobinhoodOrder[];
-}
-
-interface IOrderResponse {
-  next: string;
-  previous: string;
-  results: IOrder[];
-}
-
-interface IRobinhoodExecution {
-  price: string; // string number
-  quantity: string; // string number
-  settlement_date: string; // 2020-04-06
-  timestamp: string; // iso date string
-  id: string;
-}
-
-interface IRobinhoodOrder {
-  id: string;
-  ref_id: string;
-  url: string;
-  account: string;
-  position: string;
-  cancel: null;
-  instrument: string;
-  cumulative_quantity: string;
-  average_price: string;
-  fees: string;
-  state: string;
-  type: string;
-  side: string;
-  time_in_force: string;
-  trigger: string;
-  price: string;
-  stop_price: null;
-  quantity: string; // string number
-  reject_reason: null;
-  created_at: string; // iso date string
-  updated_at: string; // iso date string
-  last_transaction_at: string; // iso date string
-  executions: IRobinhoodExecution[];
-  extended_hours: boolean;
-  override_dtbp_checks: boolean;
-  override_day_trade_checks: boolean;
-  response_category: null;
-  stop_triggered_at: null;
-  last_trail_price: null;
-  last_trail_price_updated_at: null;
-  total_notional: {
-    amount: string; // number
-    currency_code: string,
-    currency_id: string;
-  };
-  executed_notional: {
-    amount: string, // number
-    currency_code: string,
-    currency_id: string;
-  };
-  investment_schedule_id: null;
-}
-
-interface IOrder extends IRobinhoodOrder {
-  symbol: string;
-}
-
-interface IRobinhoodInstrument {
-  id: string;
-  url: string; // url
-  quote: string; // url
-  fundamentals: string; // url
-  splits: string; // url
-  state: string; // 'active' | 'inactive
-  market: string; // url
-  simple_name: string;
-  name: string;
-  tradeable: true;
-  tradability: string; // 'tradable' | 'untradable'
-  symbol: string;
-  bloomberg_unique: string;
-  margin_initial_ratio: string; // number
-  maintenance_ratio: string; // number
-  country: string;
-  day_trade_ratio: string; // number
-  list_date: string; // date yyyy-mm-dd
-  min_tick_size: null;
-  type: '';
-  tradable_chain_id: null;
-  rhs_tradability: string; // 'tradable' | 'untradable'
-  fractional_tradability: string; // 'tradable' | 'untradable'
-  default_collar_fraction: string; // number
-}
-
-interface IRobinhoodQuote {
-  ask_price: string; // number
-  ask_size: number;
-  bid_price: string; // number
-  bid_size: number;
-  last_trade_price: string; // number
-  last_extended_hours_trade_price: string; // number
-  previous_close: string; // number
-  adjusted_previous_close: string; // number
-  previous_close_date: string; // date yyyy-mm-dd
-  symbol: string;
-  trading_halted: boolean;
-  has_traded: boolean;
-  last_trade_price_source: "consolidated";
-  updated_at: string; // iso date string
-  instrument: string; // url
-}
+import { IRobinhoodAccountsResponse } from "./account.type";
+import { IRobinhoodHistoricalsResponse } from "./historicals.type";
+import { IRobinhoodInstrument } from "./instrument.type";
+import { IOrder, IOrderResponse, IRobinhoodOrdersResponse } from "./order.type";
+import { IPosition, IPositionResponse, IRobinhoodPositionResponse } from "./positions.type";
+import { IRobinhoodQuoteResponse } from "./quote.type";
+import { IRobinhoodUser } from "./user.type";
 
 /**
  * Wrapper around robinhood npm library
@@ -166,7 +24,7 @@ class RobinhoodWrapper {
   /**
    * Get position with symbol
    */
-  public async getPositions() {
+  public async getPositions(): Promise<IPositionResponse> {
     const positionResponse: IRobinhoodPositionResponse = await async(this.robinhood.positions);
     const promises = positionResponse.results.map(async (position): Promise<IPosition> => {
       const instrument = await this.getInstrument(position.instrument);
@@ -186,20 +44,20 @@ class RobinhoodWrapper {
     return this.robinhood;
   }
 
-  public getUser() {
+  public getUser(): Promise<IRobinhoodUser> {
     return async(this.robinhood.user);
   }
 
-  public getQuote(symbol: string) {
+  public getQuote(symbol: string): Promise<IRobinhoodQuoteResponse> {
     return async(this.robinhood.quote_data, symbol);
   }
 
-  public getAccounts() {
+  public getAccounts(): Promise<IRobinhoodAccountsResponse> {
     return async(this.robinhood.accounts);
   }
 
   /**
-   * Gets all the instruments for a user
+   * Gets all the instruments for a user. Not used
    */
   public async getInstruments(): Promise<IRobinhoodInstrument[]> {
     await this.getOrders();
@@ -241,13 +99,20 @@ class RobinhoodWrapper {
     return Object.assign({}, ordersResponse, { results: [...await Promise.all(promises), ...nextResults] });
   }
 
+  public getHistoricals(symbol: string, interval: string, span: string): Promise<IRobinhoodHistoricalsResponse> {
+    return async(this.robinhood.historicals, symbol, interval, span);
+  }
+
   /**
    * Gets credentials from local file
    */
-  private getCredentials() {
+  private getCredentials(): ICredentials {
     const data = fs.readFileSync("credentials.json", "utf8");
     return JSON.parse(data);
   }
 }
 
+/**
+ * Return instantiated for now. Should use nextjs
+ */
 export default new RobinhoodWrapper();

@@ -39,7 +39,6 @@ export class QuotesClientService {
    * include instrument details.
    */
   get(symbol: string): Observable<IRobinhoodQuote[]> {
-    const response: IRobinhoodQuoteResponse = JSON.parse(window.localStorage.getItem('quote'));
     return this.http.get<IRobinhoodQuoteResponse>(`${this.baseUrl}/${symbol}`)
       .pipe(map(quoteResponse => {
         return quoteResponse.results;

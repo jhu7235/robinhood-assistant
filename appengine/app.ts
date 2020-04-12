@@ -39,6 +39,17 @@ app.get('/instruments', async (req, res) => {
   res.status(200).json(instruments);
 });
 
+app.get('/historicals', async (req, res) => {
+  console.log('get historicals', req.params.symbol);
+  const historicals = await robinhood.getHistoricals(
+    req.query.symbol as string,
+    req.query.interval as string,
+    req.query.span as string,
+  );
+  console.log(historicals);
+  res.status(200).json(historicals);
+});
+
 app.get('/positions', async (req, res) => {
   console.log('get positions');
   const positions = await robinhood.getPositions();

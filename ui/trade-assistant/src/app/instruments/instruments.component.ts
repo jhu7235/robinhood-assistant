@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { InstrumentsClientService, IInstrument } from '../shared/instruments-client.service';
 
 @Component({
   selector: 'app-instruments',
@@ -7,7 +6,7 @@ import { InstrumentsClientService, IInstrument } from '../shared/instruments-cli
   styleUrls: ['./instruments.component.scss']
 })
 export class InstrumentsComponent implements OnInit {
-  constructor(private instrumentsClientService: InstrumentsClientService) { }
+  constructor() { }
 
   public ngOnInit(): void {
   }
