@@ -11,6 +11,7 @@ const app = express();
 // TODO: block origins
 app.use(cors());
 
+// TODO: make all paths auth protected and check that is logged into account
 app.get('/', (req, res) => {
   res.status(200).send('Hello, world!').end();
 });
@@ -40,7 +41,6 @@ app.get('/instruments', async (req, res) => {
 });
 
 app.get('/historicals', async (req, res) => {
-  console.log('get historicals', req.params.symbol);
   const historicals = await robinhood.getHistoricals(
     req.query.symbol as string,
     req.query.interval as string,

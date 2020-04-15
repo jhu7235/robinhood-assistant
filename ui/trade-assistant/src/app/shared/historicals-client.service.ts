@@ -14,7 +14,7 @@ interface IRobinhoodHistoricalsResponse {
   InstrumentID: string;
 }
 
-interface IHistoricalData {
+export interface IHistoricalData {
   begins_at: string; // iso Date string
   open_price: string; // number
   close_price: string; // number
