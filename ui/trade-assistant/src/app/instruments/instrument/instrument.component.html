@@ -1,0 +1,25 @@
+<div class="instrument-grid">
+  <div class="cell">
+    <p>{{ instrument.symbol }}</p>
+    <p>{{ instrument.simple_name }}</p>
+  </div>
+  <div class="quote-grid" *ngIf="quote">
+    <div><p>Ask:</p></div>
+    <div>
+      <p>{{ quote.ask_size }}</p>
+    </div>
+    <div>
+      <p>{{ quote.ask_price | currency }}</p>
+    </div>
+    <div><p>Bid:</p></div>
+    <div>
+      <p>{{ quote.bid_size }}</p>
+    </div>
+    <div>
+      <p>{{ quote.bid_price | currency }}</p>
+    </div>
+  </div>
+  <div class="cell">
+    <p *ngIf="quote">Market: {{ quote.last_trade_price | currency }}</p>
+  </div>
+</div>

@@ -1,17 +1,17 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { map, skipWhile } from 'rxjs/operators';
-import { of, Observable } from 'rxjs';
 
-
-interface IRobinhoodOrderResponse {
+export interface IRobinhoodOrdersResponse {
   next: string;
   previous: string;
-  // modified in the backend
+  results: IRobinhoodOrder[];
+}
+
+export interface IOrderResponse {
+  next: string;
+  previous: string;
   results: IOrder[];
 }
 
-export interface IRobinhoodExecution {
+interface IRobinhoodExecution {
   price: string; // string number
   quantity: string; // string number
   settlement_date: string; // 2020-04-06
@@ -19,12 +19,7 @@ export interface IRobinhoodExecution {
   id: string;
 }
 
-export interface IExecution extends IRobinhoodExecution {
-  symbol: string;
-  side: string;
-}
-
-export interface IRobinhoodOrder {
+interface IRobinhoodOrder {
   id: string;
   ref_id: string;
   url: string;
@@ -47,7 +42,7 @@ export interface IRobinhoodOrder {
   created_at: string; // iso date string
   updated_at: string; // iso date string
   last_transaction_at: string; // iso date string
-  executions: IExecution[];
+  executions: IRobinhoodExecution[];
   extended_hours: boolean;
   override_dtbp_checks: boolean;
   override_day_trade_checks: boolean;
@@ -70,29 +65,4 @@ export interface IRobinhoodOrder {
 
 export interface IOrder extends IRobinhoodOrder {
   symbol: string;
-  name: string;
-}
-
-@Injectable({
-  providedIn: 'root'
-})
-export class OrdersClientService {
-  // move this to environments
-  private baseUrl = 'http://localhost:8080/orders';
-
-  constructor(private http: HttpClient) { }
-
-  /**
-   * Using IOrders instead of IRobinhoodOrders because it's been  modified to include instrument details
-   */
-  get(): Observable<IOrder[]> {
-    const response: IRobinhoodOrderResponse = JSON.parse(window.localStorage.getItem('orders'));
-    if (response) {
-      return of(response.results);
-    }
-    return this.http.get<IRobinhoodOrderResponse>(this.baseUrl).pipe(map(orderResponse => {
-      window.localStorage.setItem('orders', JSON.stringify(orderResponse));
-      return orderResponse.results;
-    }), skipWhile(v => !v));
-  }
 }

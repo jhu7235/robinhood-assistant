@@ -1,0 +1,3 @@
+interface ICredentials {
+  token: string;
+}

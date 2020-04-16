@@ -8,6 +8,7 @@ import { AccountsModule } from './accounts/accounts.module';
 import { HoldingsModule } from './holdings/holdings.module';
 import { SharedModule } from './shared/shared.module';
 import { SharedMaterialModule } from './shared-material/shared-material.module';
+import { InstrumentsModule } from './instruments/instruments.module';
 
 
 @NgModule({
@@ -21,6 +22,8 @@ import { SharedMaterialModule } from './shared-material/shared-material.module';
     AccountsModule,
     HoldingsModule,
     SharedModule,
+    InstrumentsModule,
+
     SharedMaterialModule,
     BrowserAnimationsModule,
   ],

@@ -1,6 +1,16 @@
-<div class="container">
-  <h1>Robinhood Trading Assistant</h1>
-  <app-accounts></app-accounts>
-  <app-holdings></app-holdings>
-</div>
+<h1>Robinhood Trading Assistant</h1>
+<mat-tab-group mat-stretch-tabs class="example-stretched-tabs">
+  <mat-tab label="Account">
+    <app-accounts></app-accounts>
+  </mat-tab>
+  <mat-tab label="Holdings">
+    <app-holdings></app-holdings>
+  </mat-tab>
+  <mat-tab label="Instruments">
+    <app-instruments></app-instruments>
+  </mat-tab>
+  <mat-tab label="Charts">
+    <app-instrument-chart [historicals]="historicals"></app-instrument-chart>
+  </mat-tab>
+</mat-tab-group>
 <router-outlet></router-outlet>

@@ -1,1 +1,9 @@
-<p>accounts works!</p>
+<div class="accounts-container">
+  <p>Name: {{ user.first_name }} {{ user.last_name }}</p>
+  <p>Email: {{ user.email }}</p>
+  <p>Created at: {{ user.created_at | date }}</p>
+  <div *ngFor="let account of accounts">
+    <p>Funds available: {{ account.portfolio_cash | currency }}</p>
+  </div>
+  <p>Weekly Deposits:</p>
+</div>
