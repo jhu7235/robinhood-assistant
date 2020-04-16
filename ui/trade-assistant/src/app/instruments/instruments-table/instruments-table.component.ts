@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { InstrumentsClientService, IRobinhoodInstrument } from 'src/app/shared/instruments-client.service';
-import { HistoricalsClientService, IHistoricalData } from 'src/app/shared/historicals-client.service';
 
 @Component({
   selector: 'app-instruments-table',

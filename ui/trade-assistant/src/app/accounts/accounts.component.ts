@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AccountsClientService, IRobinhoodAccount } from '../shared/accounts-client.service';
 import { UserClientService } from '../shared/user-client.service';
-import { HistoricalsClientService, IHistoricalData } from '../shared/historicals-client.service';
 
 
 @Component({

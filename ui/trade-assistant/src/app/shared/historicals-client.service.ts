@@ -3,26 +3,29 @@ import { HttpClient } from '@angular/common/http';
 import { skipWhile, map } from 'rxjs/operators';
 import { of } from 'rxjs';
 
-interface IRobinhoodHistoricalsResponse {
-  quote: string; // url
+interface IMeta {
+  information: string;
   symbol: string;
-  interval: string; // '5minute' | '10minute'
-  span: string; // 'day' | 'week'
-  bounds: string; // 'regular'
-  instrument: string; // url
-  historicals: IHistoricalData[];
-  InstrumentID: string;
+  updated: string; // yyyy-mm-dd
+  size: string;
+  zone: string;
 }
 
-export interface IHistoricalData {
-  begins_at: string; // iso Date string
-  open_price: string; // number
-  close_price: string; // number
-  high_price: string; // number
-  low_price: string; // number
-  volume: number;
-  session: string; // 'reg'
-  interpolated: boolean;
+interface IHistorical {
+  open: string; // number
+  high: string; // number
+  low: string; // number
+  close: string; // number
+  volume: string; // number
+}
+
+export interface IHistoricals {
+  [timestamp: string]: IHistorical;
+}
+
+interface IAlphaVantageDailyResponse {
+  meta: IMeta;
+  data: IHistoricals;
 }
 
 @Injectable({
@@ -33,12 +36,13 @@ export class HistoricalsClientService {
 
   constructor(private http: HttpClient) { }
 
-  get(symbol: string, interval: string, span: string) {
-    const response: IRobinhoodHistoricalsResponse = JSON.parse(window.localStorage.getItem(`historicals/${symbol}`));
+  // get(symbol: string, interval: string, span: string) {
+  get(symbol: string) {
+    const response: IAlphaVantageDailyResponse = JSON.parse(window.localStorage.getItem(`historicals/${symbol}`));
     if (response) {
       return of(response);
     }
-    return this.http.get<IRobinhoodHistoricalsResponse>(`${this.baseUrl}?symbol=${symbol}&span=${span}&interval=${interval}`)
+    return this.http.get<IAlphaVantageDailyResponse>(`${this.baseUrl}?symbol=${symbol}&outputSize=full`)
       .pipe(map(historicalsResponse => {
         window.localStorage.setItem(`historicals/${symbol}`, JSON.stringify(historicalsResponse));
         return historicalsResponse;

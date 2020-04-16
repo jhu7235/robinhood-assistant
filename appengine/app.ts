@@ -3,6 +3,7 @@
 // [START gae_node_request_example]
 import cors from 'cors';
 import express from 'express';
+import alphaVantage, { IOutputSize } from './alpha-vantage/alpha-vantage';
 import robinhood from './robinhood/robinhood';
 
 const app = express();
@@ -41,12 +42,11 @@ app.get('/instruments', async (req, res) => {
 });
 
 app.get('/historicals', async (req, res) => {
-  const historicals = await robinhood.getHistoricals(
+  console.log('get historicals', req.query.symbol);
+  const historicals = await alphaVantage.getHistoricals(
     req.query.symbol as string,
-    req.query.interval as string,
-    req.query.span as string,
+    req.query.outputSize as IOutputSize,
   );
-  console.log(historicals);
   res.status(200).json(historicals);
 });
 
@@ -65,11 +65,8 @@ app.get('/orders', async (req, res) => {
 // Start the server
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, async () => {
-  await robinhood.sendCredentials();
   console.log(`App listening on port ${PORT}`);
   console.log('Press Ctrl+C to quit.');
 });
-
-// [END gae_node_request_example]
 
 module.exports = app;

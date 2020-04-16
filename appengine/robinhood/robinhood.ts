@@ -14,6 +14,7 @@ import { IRobinhoodUser } from "./user.type";
  */
 class RobinhoodWrapper {
   private robinhood: RobinhoodWebApi;
+  private initPromise: Promise<any>;
   // instrument cache
   private instruments: { [instrumentId: string]: Promise<IRobinhoodInstrument> } = {};
 
@@ -25,6 +26,7 @@ class RobinhoodWrapper {
    * Get position with symbol
    */
   public async getPositions(): Promise<IPositionResponse> {
+    await this.initPromise;
     const positionResponse: IRobinhoodPositionResponse = await async(this.robinhood.positions);
     const promises = positionResponse.results.map(async (position): Promise<IPosition> => {
       const instrument = await this.getInstrument(position.instrument);
@@ -37,22 +39,24 @@ class RobinhoodWrapper {
    * Logs user into robinhood. Must happen before using library
    * returns logged in app and logged in data
    */
-  public async sendCredentials() {
-    await new Promise((resolve) => {
+  public sendCredentials() {
+    this.initPromise = new Promise((resolve) => {
       this.robinhood = Robinhood(this.getCredentials(), resolve);
     });
-    return this.robinhood;
   }
 
-  public getUser(): Promise<IRobinhoodUser> {
+  public async getUser(): Promise<IRobinhoodUser> {
+    await this.initPromise;
     return async(this.robinhood.user);
   }
 
-  public getQuote(symbol: string): Promise<IRobinhoodQuoteResponse> {
+  public async getQuote(symbol: string): Promise<IRobinhoodQuoteResponse> {
+    await this.initPromise;
     return async(this.robinhood.quote_data, symbol);
   }
 
-  public getAccounts(): Promise<IRobinhoodAccountsResponse> {
+  public async getAccounts(): Promise<IRobinhoodAccountsResponse> {
+    await this.initPromise;
     return async(this.robinhood.accounts);
   }
 
@@ -60,6 +64,7 @@ class RobinhoodWrapper {
    * Gets all the instruments for a user. Not used
    */
   public async getInstruments(): Promise<IRobinhoodInstrument[]> {
+    await this.initPromise;
     await this.getOrders();
     return Promise.all(Object.values(this.instruments));
     // return async(this.robinhood.instruments, null);
@@ -69,6 +74,7 @@ class RobinhoodWrapper {
    * Fetch instrument from Robinhood if it's not already in cache
    */
   public async getInstrument(instrumentId: string): Promise<IRobinhoodInstrument> {
+    await this.initPromise;
     // check cache first
     if (!this.instruments[instrumentId]) {
       this.instruments[instrumentId] = async(this.robinhood.url, instrumentId)
@@ -87,6 +93,7 @@ class RobinhoodWrapper {
    * Recursively gets orders and adds symbol
    */
   public async getOrders(nextUrl?: string): Promise<IOrderResponse> {
+    await this.initPromise;
     const ordersResponse: IRobinhoodOrdersResponse = nextUrl
       ? await async(this.robinhood.url, nextUrl)
       : await async(this.robinhood.orders, null);
@@ -99,7 +106,8 @@ class RobinhoodWrapper {
     return Object.assign({}, ordersResponse, { results: [...await Promise.all(promises), ...nextResults] });
   }
 
-  public getHistoricals(symbol: string, interval: string, span: string): Promise<IRobinhoodHistoricalsResponse> {
+  public async getHistoricals(symbol: string, interval: string, span: string): Promise<IRobinhoodHistoricalsResponse> {
+    await this.initPromise;
     return async(this.robinhood.historicals, symbol, interval, span);
   }
 
