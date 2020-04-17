@@ -35,7 +35,7 @@ export interface IRobinhoodInstrument {
   providedIn: 'root'
 })
 export class InstrumentsClientService {
-  // move this to environments
+  // TODO: move this to environments
   private baseUrl = 'http://localhost:8080/instruments';
 
   constructor(private http: HttpClient) { }
