@@ -41,19 +41,37 @@ app.get('/instruments', async (req, res) => {
   res.status(200).json(instruments);
 });
 
-app.get('/historicals/daily', async (req, res) => {
-  console.log('get historicals', req.query.symbol);
+app.get('/historicals/daily/:symbol', async (req, res) => {
+  console.log('get daily historicals', req.params.symbol);
   const historicals = await alphaVantage.getDaily(
-    req.query.symbol as string,
+    req.params.symbol as string,
     req.query.outputSize as IOutputSize,
   );
   res.status(200).json(historicals);
 });
 
-app.get('/historicals/intraday', async (req, res) => {
-  console.log('get historicals', req.query.symbol);
+app.get('/historicals/intraday/:symbol', async (req, res) => {
+  console.log('get intraday historicals', req.params.symbol);
   const historicals = await alphaVantage.getIntraday(
-    req.query.symbol as string,
+    req.params.symbol as string,
+    req.query.outputSize as IOutputSize,
+  );
+  res.status(200).json(historicals);
+});
+
+app.get('/historicals/weekly/:symbol', async (req, res) => {
+  console.log('get weekly historicals', req.params.symbol);
+  const historicals = await alphaVantage.getWeekly(
+    req.params.symbol as string,
+    req.query.outputSize as IOutputSize,
+  );
+  res.status(200).json(historicals);
+});
+
+app.get('/historicals/monthly/:symbol', async (req, res) => {
+  console.log('get monthly historicals', req.params.symbol);
+  const historicals = await alphaVantage.getMonthly(
+    req.params.symbol as string,
     req.query.outputSize as IOutputSize,
   );
   res.status(200).json(historicals);

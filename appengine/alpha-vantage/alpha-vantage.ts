@@ -34,13 +34,32 @@ class AlphaAdvantageWrapper {
   }
 
   /**
+   * Get daily data points for stock
+   *
+   * @param outputSize 'compact' for past 100 days, 'full' past 20 years
+   */
+  public async getWeekly(symbol: string, outputSize: IOutputSize): Promise<IAlphaVantageDailyResponse> {
+    const data = await this.alpha.data.weekly(symbol, outputSize, 'json');
+    return this.alpha.util.polish(data);
+  }
+
+  /**
+   * Get daily data points for stock
+   *
+   * @param outputSize 'compact' for past 100 days, 'full' past 20 years
+   */
+  public async getMonthly(symbol: string, outputSize: IOutputSize): Promise<IAlphaVantageDailyResponse> {
+    const data = await this.alpha.data.monthly(symbol, outputSize, 'json');
+    return this.alpha.util.polish(data);
+  }
+
+  /**
    * Gets credentials from local file
    */
   private getApiKey(): string {
     const data = fs.readFileSync("credentials.json", "utf8");
     return JSON.parse(data).alphaAdvantageApiKey;
   }
-
 }
 
 export default new AlphaAdvantageWrapper();

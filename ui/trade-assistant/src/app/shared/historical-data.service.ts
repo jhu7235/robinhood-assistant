@@ -26,8 +26,6 @@ export class HistoricalDataService {
     historicalsMap: IHistoricals,
     timeInterval: ITimeInterval
   ) {
-    console.log(historicalsMap);
-
     const historicals: IFinancialHistorical[] = [];
     for (const timestamp in historicalsMap) {
       if (historicalsMap.hasOwnProperty(timestamp)) {
@@ -53,7 +51,6 @@ export class HistoricalDataService {
     historicalsMap: IHistoricals,
     timeInterval: ITimeInterval
   ): Chart.ChartPoint[] {
-    console.log(historicalsMap);
     const now = Date.now();
     const data: Chart.ChartPoint[] = [];
 

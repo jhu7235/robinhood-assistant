@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { IOrder, IRobinhoodOrder, IRobinhoodExecution } from '../shared/orders-client.service';
+import { IOrder, IRobinhoodExecution } from '../shared/orders-client.service';
+import { ONE_DAY } from '../shared/client-helper.functions';
 
 
-const MS_PER_DAY = 86400000;
 
 export interface IHolding extends Omit<IRobinhoodExecution, 'quantity'> {
   symbol: string;
@@ -17,7 +17,7 @@ export interface IHolding extends Omit<IRobinhoodExecution, 'quantity'> {
 export class HoldingsService {
 
   private timestampToAge(timestamp: string): number {
-    return Math.floor((Date.now() - new Date(timestamp).getTime()) / MS_PER_DAY);
+    return Math.floor((Date.now() - new Date(timestamp).getTime()) / ONE_DAY);
   }
 
   /**
@@ -38,7 +38,7 @@ export class HoldingsService {
     return executions;
   }
 
-  private mapToArray(holdingsMap: { [symbol: string]: IHolding[] }): IHolding[]{
+  private mapToArray(holdingsMap: { [symbol: string]: IHolding[] }): IHolding[] {
     const holdings = [];
     Object.keys(holdingsMap).forEach(sym => holdings.push(...holdingsMap[sym]));
     return holdings;

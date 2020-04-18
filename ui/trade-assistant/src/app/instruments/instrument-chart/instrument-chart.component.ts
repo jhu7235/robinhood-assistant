@@ -24,18 +24,19 @@ export class InstrumentChartComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.historicalClientService.getDaily(this.symbol)
+    this.historicalClientService.getMonthly(this.symbol)
       .subscribe((historicals) => {
-        this.buildScatterChart(historicals.data);
+        // TODO: remove when not needed anymore
+        // this.buildScatterChart(historicals.data);
         this.buildCandleStickChart(historicals.data);
       });
   }
 
-  buildScatterChart(historicalsMap: IHistoricals) {
+  private buildScatterChart(historicalsMap: IHistoricals) {
     const data = this.historicalDataService.toScatter(
       historicalsMap,
       {
-        start: Date.now() - ONE_YEAR,
+        start: Date.now() - Infinity,
         stop: Date.now()
       }
     );
@@ -65,7 +66,7 @@ export class InstrumentChartComponent implements OnInit {
     const data = this.historicalDataService.toCandleStick(
       historicalsMap,
       {
-        start: Date.now() - ONE_YEAR,
+        start: Date.now() - 5 * ONE_YEAR,
         stop: Date.now()
       }
     );
@@ -80,6 +81,11 @@ export class InstrumentChartComponent implements OnInit {
       },
       options: {
         scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true
+            }
+          }]
           // xAxes: [{
           //   afterBuildTicks(scale, ticks) {
           //     const majorUnit = scale._majorUnit;

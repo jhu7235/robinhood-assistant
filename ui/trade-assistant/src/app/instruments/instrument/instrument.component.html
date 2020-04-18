@@ -1,4 +1,4 @@
-<div class="instrument-grid">
+<div class="instrument-grid" (click)="showChart = !showChart">
   <div class="cell">
     <p>{{ instrument.symbol }}</p>
     <p>{{ instrument.simple_name }}</p>
@@ -22,4 +22,7 @@
   <div class="cell">
     <p *ngIf="quote">Market: {{ quote.last_trade_price | currency }}</p>
   </div>
+</div>
+<div *ngIf="showChart">
+  <app-instrument-chart [symbol]="instrument.symbol"></app-instrument-chart>
 </div>

@@ -9,6 +9,7 @@ import { QuotesClientService, IRobinhoodQuote } from 'src/app/shared/quotes-clie
 })
 export class InstrumentComponent implements OnInit {
   public quote: IRobinhoodQuote;
+  public showChart = false;
   @Input() instrument: IRobinhoodInstrument;
 
   constructor(

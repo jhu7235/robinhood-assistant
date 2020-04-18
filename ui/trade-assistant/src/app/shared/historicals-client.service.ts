@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { skipWhile, map } from 'rxjs/operators';
 import { of } from 'rxjs';
-import { TWENTY_FOUR_HOURS, FOUR_HOURS, ICachedResponse } from './client-helper.functions';
+import { TWENTY_FOUR_HOURS, FOUR_HOURS, ICachedResponse, ONE_WEEK } from './client-helper.functions';
 
 interface IMeta {
   information: string;
@@ -43,7 +43,7 @@ export class HistoricalsClientService {
     if (response && (Date.now() - response.localCacheTime < TWENTY_FOUR_HOURS)) {
       return of(response);
     }
-    return this.http.get<IHistoricalsResponse>(`${this.baseUrl}/daily`, { params: { symbol, outputSize: 'full' } })
+    return this.http.get<IHistoricalsResponse>(`${this.baseUrl}/daily/${symbol}`, { params: { outputSize: 'full' } })
       .pipe(map(historicalsResponse => {
         const cachedResponse: ICachedResponse<IHistoricalsResponse> = { ...historicalsResponse, localCacheTime: Date.now() };
         window.localStorage.setItem(`historicals/daily/${symbol}`, JSON.stringify(cachedResponse));
@@ -56,10 +56,36 @@ export class HistoricalsClientService {
     if (response && (Date.now() - response.localCacheTime < FOUR_HOURS)) {
       return of(response);
     }
-    return this.http.get<IHistoricalsResponse>(`${this.baseUrl}/intraday`, { params: { symbol, outputSize: 'full' } })
+    return this.http.get<IHistoricalsResponse>(`${this.baseUrl}/intraday/${symbol}`, { params: { outputSize: 'full' } })
       .pipe(map(historicalsResponse => {
         const cachedResponse: ICachedResponse<IHistoricalsResponse> = { ...historicalsResponse, localCacheTime: Date.now() };
         window.localStorage.setItem(`historicals/intraday/${symbol}`, JSON.stringify(cachedResponse));
+        return historicalsResponse;
+      }), skipWhile(v => !v));
+  }
+
+  getWeekly(symbol: string) {
+    const response: ICachedResponse<IHistoricalsResponse> = JSON.parse(window.localStorage.getItem(`historicals/weekly/${symbol}`));
+    if (response && (Date.now() - response.localCacheTime < ONE_WEEK)) {
+      return of(response);
+    }
+    return this.http.get<IHistoricalsResponse>(`${this.baseUrl}/weekly/${symbol}`, { params: { outputSize: 'full' } })
+      .pipe(map(historicalsResponse => {
+        const cachedResponse: ICachedResponse<IHistoricalsResponse> = { ...historicalsResponse, localCacheTime: Date.now() };
+        window.localStorage.setItem(`historicals/weekly/${symbol}`, JSON.stringify(cachedResponse));
+        return historicalsResponse;
+      }), skipWhile(v => !v));
+  }
+
+  getMonthly(symbol: string) {
+    const response: ICachedResponse<IHistoricalsResponse> = JSON.parse(window.localStorage.getItem(`historicals/monthly/${symbol}`));
+    if (response && (Date.now() - response.localCacheTime < 2 * ONE_WEEK)) {
+      return of(response);
+    }
+    return this.http.get<IHistoricalsResponse>(`${this.baseUrl}/monthly/${symbol}`, { params: { outputSize: 'full' } })
+      .pipe(map(historicalsResponse => {
+        const cachedResponse: ICachedResponse<IHistoricalsResponse> = { ...historicalsResponse, localCacheTime: Date.now() };
+        window.localStorage.setItem(`historicals/monthly/${symbol}`, JSON.stringify(cachedResponse));
         return historicalsResponse;
       }), skipWhile(v => !v));
   }
