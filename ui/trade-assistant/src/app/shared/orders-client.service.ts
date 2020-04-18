@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, skipWhile } from 'rxjs/operators';
 import { of, Observable } from 'rxjs';
-import { FOUR_HOURS } from './client-helper.functions';
+import { FOUR_HOURS, ICachedResponse } from './client-helper.functions';
 
 
 interface IRobinhoodOrderResponse {
@@ -74,11 +74,6 @@ export interface IOrder extends IRobinhoodOrder {
   name: string;
 }
 
-// TODO: this is used in multiple places, figure out how to dynamically extend
-// the interface
-interface ICachedResponse extends IRobinhoodOrderResponse {
-  localCacheTime: number; // timestamp
-}
 
 @Injectable({
   providedIn: 'root'
@@ -93,12 +88,12 @@ export class OrdersClientService {
    * Using IOrders instead of IRobinhoodOrders because it's been  modified to include instrument details
    */
   get(): Observable<IOrder[]> {
-    const response: ICachedResponse = JSON.parse(window.localStorage.getItem('orders'));
+    const response: ICachedResponse<IRobinhoodOrderResponse> = JSON.parse(window.localStorage.getItem('orders'));
     if (response && (Date.now() - response.localCacheTime < FOUR_HOURS)) {
       return of(response.results);
     }
     return this.http.get<IRobinhoodOrderResponse>(this.baseUrl).pipe(map(orderResponse => {
-      const cachedResponse: ICachedResponse = { ...orderResponse, localCacheTime: Date.now() };
+      const cachedResponse: ICachedResponse<IRobinhoodOrderResponse> = { ...orderResponse, localCacheTime: Date.now() };
       window.localStorage.setItem('orders', JSON.stringify(cachedResponse));
       return orderResponse.results;
     }), skipWhile(v => !v));

@@ -17,7 +17,8 @@ export class InstrumentComponent implements OnInit {
 
   ngOnInit(): void {
     this.quotesClientService.get(this.instrument.symbol)
-      .subscribe((quote) => (this.quote = quote[0]));
+      // don't show delisted stocks
+      .subscribe((quote) => (this.quote = quote && quote[0]));
 
   }
 }

@@ -1,5 +1,13 @@
 const MINUTE = 1000 * 60;
-const HOUR = MINUTE * 60;
-
-export const FOUR_HOURS = 4 * HOUR;
 export const FIVE_MINUTES = 5 * MINUTE;
+
+const HOUR = MINUTE * 60;
+export const FOUR_HOURS = 4 * HOUR;
+export const TWENTY_FOUR_HOURS = 24 * HOUR;
+export const FORTY_EIGHT_HOURS = 48 * HOUR;
+
+export const DAY = TWENTY_FOUR_HOURS;
+export const WEEK = 7 * DAY;
+export const ONE_YEAR = 365 * DAY;
+
+export type ICachedResponse<T> = T & { localCacheTime: number };

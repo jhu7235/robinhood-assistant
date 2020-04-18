@@ -41,9 +41,18 @@ app.get('/instruments', async (req, res) => {
   res.status(200).json(instruments);
 });
 
-app.get('/historicals', async (req, res) => {
+app.get('/historicals/daily', async (req, res) => {
   console.log('get historicals', req.query.symbol);
-  const historicals = await alphaVantage.getHistoricals(
+  const historicals = await alphaVantage.getDaily(
+    req.query.symbol as string,
+    req.query.outputSize as IOutputSize,
+  );
+  res.status(200).json(historicals);
+});
+
+app.get('/historicals/intraday', async (req, res) => {
+  console.log('get historicals', req.query.symbol);
+  const historicals = await alphaVantage.getIntraday(
     req.query.symbol as string,
     req.query.outputSize as IOutputSize,
   );

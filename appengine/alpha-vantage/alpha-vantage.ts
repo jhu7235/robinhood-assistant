@@ -18,8 +18,18 @@ class AlphaAdvantageWrapper {
    *
    * @param outputSize 'compact' for past 100 days, 'full' past 20 years
    */
-  public async getHistoricals(symbol: string, outputSize: IOutputSize): Promise<IAlphaVantageDailyResponse> {
+  public async getDaily(symbol: string, outputSize: IOutputSize): Promise<IAlphaVantageDailyResponse> {
     const data = await this.alpha.data.daily(symbol, outputSize, 'json');
+    return this.alpha.util.polish(data);
+  }
+
+  /**
+   * Get daily data points for stock
+   *
+   * @param outputSize 'compact' for past 100 days, 'full' past 20 years
+   */
+  public async getIntraday(symbol: string, outputSize: IOutputSize): Promise<IAlphaVantageDailyResponse> {
+    const data = await this.alpha.data.intraday(symbol, outputSize, 'json');
     return this.alpha.util.polish(data);
   }
 
