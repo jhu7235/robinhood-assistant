@@ -1,4 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { TInterval } from '../shared/historicals-client.service';
 
 @Component({
   selector: 'app-chart',
@@ -7,13 +8,14 @@ import { Component, OnInit, Input } from '@angular/core';
 })
 export class ChartComponent implements OnInit {
   @Input() symbol: string;
+  interval: TInterval = 'monthly';
 
   constructor() { }
 
   ngOnInit(): void {
   }
 
-  spanChanged(event) {
-    console.log('spanChanged', event);
+  onIntervalChanged(event) {
+    this.interval = event.value;
   }
 }

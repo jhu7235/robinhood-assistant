@@ -4,6 +4,7 @@
 import cors from 'cors';
 import express from 'express';
 import alphaVantage, { IOutputSize } from './alpha-vantage/alpha-vantage';
+import { IInterval, ISpan } from './robinhood/historicals.type';
 import robinhood from './robinhood/robinhood';
 
 const app = express();
@@ -52,9 +53,11 @@ app.get('/historicals/daily/:symbol', async (req, res) => {
 
 app.get('/historicals/intraday/:symbol', async (req, res) => {
   console.log('get intraday historicals', req.params.symbol);
-  const historicals = await alphaVantage.getIntraday(
+  const historicals = await robinhood.getHistoricals(
     req.params.symbol as string,
-    req.query.outputSize as IOutputSize,
+    req.query.interval as IInterval,
+    req.query.span as ISpan,
+
   );
   res.status(200).json(historicals);
 });

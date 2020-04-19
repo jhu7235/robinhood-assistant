@@ -18,7 +18,7 @@ export interface IHistoricals {
   [timestamp: string]: IHistorical;
 }
 
-export interface IAlphaVantageDailyResponse {
+export interface IAlphaVantageHistoricalResponse {
   meta: IMeta;
   data: IHistoricals;
 }

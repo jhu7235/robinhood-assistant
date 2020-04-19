@@ -1,8 +1,8 @@
-import { Component, OnInit, ViewChild, ElementRef, Input } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Input, OnChanges, SimpleChanges } from '@angular/core';
 import FinancialChart from '../../instruments/chart';
 import { Chart } from 'chart.js';
 import { HistoricalsClientService, IHistoricals } from '../../shared/historicals-client.service';
-import { ONE_YEAR } from 'src/app/shared/client-helper.functions';
+import { ONE_YEAR, ONE_MONTH, ONE_DAY } from 'src/app/shared/client-helper.functions';
 import { HistoricalDataService } from 'src/app/shared/historical-data.service';
 
 @Component({
@@ -10,31 +10,53 @@ import { HistoricalDataService } from 'src/app/shared/historical-data.service';
   templateUrl: './chart-canvas.component.html',
   styleUrls: ['./chart-canvas.component.scss']
 })
-export class ChartCanvasComponent implements OnInit {
-  private chart: Chart;
-
-  @Input() symbol: string;
-  @ViewChild('chartCanvas', { static: true }) canvas: ElementRef;
+export class ChartCanvasComponent implements OnInit, OnChanges {
 
   constructor(
     private historicalClientService: HistoricalsClientService,
     private historicalDataService: HistoricalDataService
   ) { }
+  private chart: Chart;
+
+  @Input() symbol: string;
+  @Input() interval: string;
+  @ViewChild('chartCanvas', { static: true }) canvas: ElementRef;
+
+  private getSpan() {
+    switch (this.interval) {
+      case 'intraday':
+        return ONE_DAY;
+      case 'daily':
+        return 3 * ONE_MONTH;
+      case 'weekly':
+        return 6 * ONE_MONTH;
+      case 'monthly':
+        return Infinity;
+      default:
+        throw new Error('cannot map interval to expire age');
+    }
+  }
 
   ngOnInit(): void {
-    this.historicalClientService.getMonthly(this.symbol)
-      .subscribe((historicals) => {
-        // TODO: remove when not needed anymore
-        // this.buildScatterChart(historicals.data);
-        this.buildCandleStickChart(historicals.data);
-      });
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.interval.currentValue !== changes.interval.previousValue) {
+      this.historicalClientService.get(this.symbol, changes.interval.currentValue)
+        .subscribe((historicals) => {
+          // TODO: remove when not needed anymore
+          // this.buildScatterChart(historicals.data);
+          this.buildCandleStickChart(historicals.data);
+        });
+    }
+
   }
 
   private buildScatterChart(historicalsMap: IHistoricals) {
     const data = this.historicalDataService.toScatter(
       historicalsMap,
       {
-        start: Date.now() - Infinity,
+        start: Date.now() - this.getSpan(),
         stop: Date.now()
       }
     );
@@ -60,14 +82,34 @@ export class ChartCanvasComponent implements OnInit {
     });
   }
 
+
+  /**
+   * If it's the Saturday or Sunday don't move the frame to Friday
+   */
+  private getLastTime() {
+    const weekday = new Date().getDay();
+    let dateDifference = 0;
+    if (weekday === 0) {
+      dateDifference = 2;
+    } else if (weekday === 6) {
+      dateDifference = 1;
+    }
+    const latestDate = new Date();
+    latestDate.setDate(latestDate.getDate() - dateDifference);
+    latestDate.setUTCHours(18 + 4); // 6pm EST
+    return latestDate.getTime();
+  }
+
   private buildCandleStickChart(historicalsMap: IHistoricals) {
+    const lastTime = this.getLastTime();
     const data = this.historicalDataService.toCandleStick(
       historicalsMap,
       {
-        start: Date.now() - 5 * ONE_YEAR,
-        stop: Date.now()
+        start: lastTime - this.getSpan(),
+        stop: lastTime
       }
     );
+
     // store chart locally for updating
     this.chart = new FinancialChart(this.canvas.nativeElement.getContext('2d'), {
       type: 'candlestick',
@@ -79,11 +121,6 @@ export class ChartCanvasComponent implements OnInit {
       },
       options: {
         scales: {
-          yAxes: [{
-            ticks: {
-              beginAtZero: true
-            }
-          }]
           // xAxes: [{
           //   afterBuildTicks(scale, ticks) {
           //     const majorUnit = scale._majorUnit;

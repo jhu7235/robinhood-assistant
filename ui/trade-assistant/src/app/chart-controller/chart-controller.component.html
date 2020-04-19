@@ -1,9 +1,16 @@
-<mat-button-toggle-group #group="matButtonToggleGroup">
+<mat-button-toggle-group
+  [value]="interval"
+  (change)="onValueChange($event)"
+  #group="matButtonToggleGroup"
+>
   <mat-button-toggle value="intraday">
     Intraday
   </mat-button-toggle>
   <mat-button-toggle value="daily">
     Daily
+  </mat-button-toggle>
+  <mat-button-toggle value="weekly">
+    Weekly
   </mat-button-toggle>
   <mat-button-toggle value="monthly">
     Monthly

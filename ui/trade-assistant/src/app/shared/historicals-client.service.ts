@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { skipWhile, map } from 'rxjs/operators';
 import { of } from 'rxjs';
-import { TWENTY_FOUR_HOURS, FOUR_HOURS, ICachedResponse, ONE_WEEK } from './client-helper.functions';
+import { ONE_MINUTE, ONE_HOUR, ICachedResponse, ONE_WEEK, ONE_DAY } from './client-helper.functions';
 
 interface IMeta {
   information: string;
@@ -19,6 +19,8 @@ interface IHistorical {
   close: string; // number
   volume: string; // number
 }
+
+export type TInterval = 'daily' | 'intraday' | 'weekly' | 'monthly';
 
 export interface IHistoricals {
   [timestamp: string]: IHistorical;
@@ -38,55 +40,45 @@ export class HistoricalsClientService {
 
   constructor(private http: HttpClient) { }
 
-  getDaily(symbol: string) {
-    const response: ICachedResponse<IHistoricalsResponse> = JSON.parse(window.localStorage.getItem(`historicals/daily/${symbol}`));
-    if (response && (Date.now() - response.localCacheTime < TWENTY_FOUR_HOURS)) {
-      return of(response);
+  /**
+   * Expire age should be about 1/4 of the interval. Except for intraday. That is immediate.
+   */
+  intervalToExpireAge(interval: TInterval) {
+    switch (interval) {
+      case 'intraday':
+        return ONE_MINUTE;
+      case 'daily':
+        return 2 * ONE_HOUR;
+      case 'weekly':
+        return 2 * ONE_DAY;
+      case 'monthly':
+        return ONE_WEEK;
+      default:
+        throw new Error('cannot map interval to expire age');
     }
-    return this.http.get<IHistoricalsResponse>(`${this.baseUrl}/daily/${symbol}`, { params: { outputSize: 'full' } })
-      .pipe(map(historicalsResponse => {
-        const cachedResponse: ICachedResponse<IHistoricalsResponse> = { ...historicalsResponse, localCacheTime: Date.now() };
-        window.localStorage.setItem(`historicals/daily/${symbol}`, JSON.stringify(cachedResponse));
-        return historicalsResponse;
-      }), skipWhile(v => !v));
   }
 
-  getIntraDay(symbol: string) {
-    const response: ICachedResponse<IHistoricalsResponse> = JSON.parse(window.localStorage.getItem(`historicals/intraday/${symbol}`));
-    if (response && (Date.now() - response.localCacheTime < FOUR_HOURS)) {
-      return of(response);
+  private intervalToParams(interval: TInterval) {
+    if (interval === 'intraday') {
+      // span is from robinhood api
+      return { outputSize: 'full', interval: '5minute', span: 'day' };
+    } else {
+      return { outputSize: 'compact' };
     }
-    return this.http.get<IHistoricalsResponse>(`${this.baseUrl}/intraday/${symbol}`, { params: { outputSize: 'full' } })
-      .pipe(map(historicalsResponse => {
-        const cachedResponse: ICachedResponse<IHistoricalsResponse> = { ...historicalsResponse, localCacheTime: Date.now() };
-        window.localStorage.setItem(`historicals/intraday/${symbol}`, JSON.stringify(cachedResponse));
-        return historicalsResponse;
-      }), skipWhile(v => !v));
+
   }
 
-  getWeekly(symbol: string) {
-    const response: ICachedResponse<IHistoricalsResponse> = JSON.parse(window.localStorage.getItem(`historicals/weekly/${symbol}`));
-    if (response && (Date.now() - response.localCacheTime < ONE_WEEK)) {
-      return of(response);
-    }
-    return this.http.get<IHistoricalsResponse>(`${this.baseUrl}/weekly/${symbol}`, { params: { outputSize: 'full' } })
-      .pipe(map(historicalsResponse => {
-        const cachedResponse: ICachedResponse<IHistoricalsResponse> = { ...historicalsResponse, localCacheTime: Date.now() };
-        window.localStorage.setItem(`historicals/weekly/${symbol}`, JSON.stringify(cachedResponse));
-        return historicalsResponse;
-      }), skipWhile(v => !v));
-  }
 
-  getMonthly(symbol: string) {
-    const response: ICachedResponse<IHistoricalsResponse> = JSON.parse(window.localStorage.getItem(`historicals/monthly/${symbol}`));
-    if (response && (Date.now() - response.localCacheTime < 2 * ONE_WEEK)) {
+  get(symbol: string, interval: TInterval) {
+    const response: ICachedResponse<IHistoricalsResponse> = JSON.parse(window.localStorage.getItem(`historicals/${interval}/${symbol}`));
+    if (response && (Date.now() - response.localCacheTime < this.intervalToExpireAge(interval))) {
       return of(response);
     }
-    return this.http.get<IHistoricalsResponse>(`${this.baseUrl}/monthly/${symbol}`, { params: { outputSize: 'full' } })
+    return this.http.get<IHistoricalsResponse>(`${this.baseUrl}/${interval}/${symbol}`, { params: this.intervalToParams(interval) })
       .pipe(map(historicalsResponse => {
         const cachedResponse: ICachedResponse<IHistoricalsResponse> = { ...historicalsResponse, localCacheTime: Date.now() };
-        window.localStorage.setItem(`historicals/monthly/${symbol}`, JSON.stringify(cachedResponse));
-        return historicalsResponse;
+        window.localStorage.setItem(`historicals/${interval}/${symbol}`, JSON.stringify(cachedResponse));
+        return cachedResponse;
       }), skipWhile(v => !v));
   }
 }
