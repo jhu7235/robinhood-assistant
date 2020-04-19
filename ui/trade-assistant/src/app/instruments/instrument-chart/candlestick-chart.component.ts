@@ -1,16 +1,16 @@
 import { Component, OnInit, ViewChild, ElementRef, Input } from '@angular/core';
-import FinancialChart from './../chart';
+import FinancialChart from '../chart';
 import { Chart } from 'chart.js';
 import { HistoricalsClientService, IHistoricals } from '../../shared/historicals-client.service';
-import { ONE_YEAR } from 'src/app/shared/client-helper.functions';
-import { HistoricalDataService } from 'src/app/shared/historical-data.service';
+import { ONE_YEAR } from './node_modules/src/app/shared/client-helper.functions';
+import { HistoricalDataService } from './node_modules/src/app/shared/historical-data.service';
 
 @Component({
-  selector: 'app-instrument-chart',
-  templateUrl: './instrument-chart.component.html',
-  styleUrls: ['./instrument-chart.component.scss']
+  selector: 'app-chart',
+  templateUrl: './chart.component.html',
+  styleUrls: ['./chart.component.scss']
 })
-export class InstrumentChartComponent implements OnInit {
+export class ChartComponent implements OnInit {
   private chart: Chart;
   private chart2: Chart;
 
