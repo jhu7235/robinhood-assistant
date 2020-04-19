@@ -1,0 +1,6 @@
+<div class="chart-container">
+  <app-chart-canvas [symbol]="symbol" [interval]="interval"></app-chart-canvas>
+  <app-chart-controller
+    (changed)="onIntervalChanged($event)"
+  ></app-chart-controller>
+</div>

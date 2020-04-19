@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, skipWhile } from 'rxjs/operators';
 import { of, Observable } from 'rxjs';
+import { FOUR_HOURS, ICachedResponse } from './client-helper.functions';
 
 
 interface IRobinhoodOrderResponse {
@@ -73,11 +74,12 @@ export interface IOrder extends IRobinhoodOrder {
   name: string;
 }
 
+
 @Injectable({
   providedIn: 'root'
 })
 export class OrdersClientService {
-  // move this to environments
+  // TODO: move this to environments
   private baseUrl = 'http://localhost:8080/orders';
 
   constructor(private http: HttpClient) { }
@@ -86,12 +88,13 @@ export class OrdersClientService {
    * Using IOrders instead of IRobinhoodOrders because it's been  modified to include instrument details
    */
   get(): Observable<IOrder[]> {
-    const response: IRobinhoodOrderResponse = JSON.parse(window.localStorage.getItem('orders'));
-    if (response) {
+    const response: ICachedResponse<IRobinhoodOrderResponse> = JSON.parse(window.localStorage.getItem('orders'));
+    if (response && (Date.now() - response.localCacheTime < FOUR_HOURS)) {
       return of(response.results);
     }
     return this.http.get<IRobinhoodOrderResponse>(this.baseUrl).pipe(map(orderResponse => {
-      window.localStorage.setItem('orders', JSON.stringify(orderResponse));
+      const cachedResponse: ICachedResponse<IRobinhoodOrderResponse> = { ...orderResponse, localCacheTime: Date.now() };
+      window.localStorage.setItem('orders', JSON.stringify(cachedResponse));
       return orderResponse.results;
     }), skipWhile(v => !v));
   }

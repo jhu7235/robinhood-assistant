@@ -1,8 +1,9 @@
 import fs from "fs";
 import Robinhood, { RobinhoodWebApi } from "robinhood";
+import { IAlphaVantageHistoricalResponse } from "../alpha-vantage/historical.types";
 import { async } from "../helpers";
 import { IRobinhoodAccountsResponse } from "./account.type";
-import { IRobinhoodHistoricalsResponse } from "./historicals.type";
+import { IInterval, IRobinhoodHistoricalsResponse, ISpan } from "./historicals.type";
 import { IRobinhoodInstrument } from "./instrument.type";
 import { IOrder, IOrderResponse, IRobinhoodOrdersResponse } from "./order.type";
 import { IPosition, IPositionResponse, IRobinhoodPositionResponse } from "./positions.type";
@@ -43,6 +44,7 @@ class RobinhoodWrapper {
     this.initPromise = new Promise((resolve) => {
       this.robinhood = Robinhood(this.getCredentials(), resolve);
     });
+    this.initPromise.then(() => console.log('init status', ...arguments));
   }
 
   public async getUser(): Promise<IRobinhoodUser> {
@@ -106,9 +108,27 @@ class RobinhoodWrapper {
     return Object.assign({}, ordersResponse, { results: [...await Promise.all(promises), ...nextResults] });
   }
 
-  public async getHistoricals(symbol: string, interval: string, span: string): Promise<IRobinhoodHistoricalsResponse> {
+  public async getHistoricals(
+    symbol: string,
+    interval: IInterval,
+    span: ISpan,
+  ): Promise<IAlphaVantageHistoricalResponse> {
     await this.initPromise;
-    return async(this.robinhood.historicals, symbol, interval, span);
+    const response: IRobinhoodHistoricalsResponse = await async(this.robinhood.historicals, symbol, interval, span);
+    const fakeAVResponse: any = {
+      data: {},
+      meta: `robinhood daily response (${interval}, ${span})`,
+    };
+    response.historicals.forEach((historical) => {
+      fakeAVResponse.data[historical.begins_at] = {
+        close: historical.close_price,
+        high: historical.high_price,
+        low: historical.low_price,
+        open: historical.open_price,
+        volume: historical.volume,
+      };
+    });
+    return fakeAVResponse as IAlphaVantageHistoricalResponse;
   }
 
   /**

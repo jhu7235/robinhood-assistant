@@ -19,3 +19,7 @@ export interface IHistoricalData {
   session: string; // 'reg'
   interpolated: boolean;
 }
+
+export type IInterval = '5minute' | '10minute';
+
+export type ISpan = 'week' | 'day';

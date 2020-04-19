@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { skipWhile, map } from 'rxjs/operators';
 import { Observable, of } from 'rxjs';
+import { FOUR_HOURS, FIVE_MINUTES, ICachedResponse } from './client-helper.functions';
 
 interface IRobinhoodQuoteResponse {
   results: IRobinhoodQuote[];
@@ -29,7 +30,7 @@ export interface IRobinhoodQuote {
   providedIn: 'root'
 })
 export class QuotesClientService {
-  // move this to environments
+  // TODO: move this to environments
   private baseUrl = 'http://localhost:8080/quote';
 
   constructor(private http: HttpClient) { }
@@ -39,8 +40,14 @@ export class QuotesClientService {
    * include instrument details.
    */
   get(symbol: string): Observable<IRobinhoodQuote[]> {
+    const response: ICachedResponse<IRobinhoodQuoteResponse> = JSON.parse(window.localStorage.getItem(`quote/${symbol}`));
+    if (response && (Date.now() - response.localCacheTime < FIVE_MINUTES)) {
+      return of(response.results);
+    }
     return this.http.get<IRobinhoodQuoteResponse>(`${this.baseUrl}/${symbol}`)
       .pipe(map(quoteResponse => {
+        const cachedResponse: ICachedResponse<IRobinhoodQuoteResponse> = { ...quoteResponse, localCacheTime: Date.now() };
+        window.localStorage.setItem(`quote/${symbol}`, JSON.stringify(cachedResponse));
         return quoteResponse.results;
       }), skipWhile(v => !v));
   }

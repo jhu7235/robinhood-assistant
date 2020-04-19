@@ -1,4 +1,4 @@
-<div class="accounts-container">
+<div class="accounts-container" *ngIf="user && accounts">
   <p>Name: {{ user.first_name }} {{ user.last_name }}</p>
   <p>Email: {{ user.email }}</p>
   <p>Created at: {{ user.created_at | date }}</p>

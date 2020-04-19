@@ -17,16 +17,21 @@ import { IHolding } from '../holdings.service';
 })
 export class HoldingsTableComponent implements OnInit {
   public holdings: IHolding[] = [];
-  // column order
+  // column ordering
   public displayedColumns: string[] = ['symbol', 'name', 'quantity', 'age', 'timestamp'];
   public dataSource: MatTableDataSource<IHolding>;
-  @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
-  @ViewChild(MatSort, { static: false }) sort: MatSort;
+  @ViewChild(MatPaginator, { static: false })
+  public paginator: MatPaginator;
+  @ViewChild(MatSort, { static: false })
+  public sort: MatSort;
   public totalQuantity = 0;
   public filterValue: string;
 
   constructor(private ordersClient: OrdersClientService, private holdingsService: HoldingsService) { }
 
+  /**
+   * Filters table data
+   */
   public applyFilter(event: Event) {
     this.filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = this.filterValue.trim().toLowerCase();

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { of, Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { skipWhile, map } from 'rxjs/operators';
+import { FOUR_HOURS, ICachedResponse } from './client-helper.functions';
 
 interface IRobinhoodAccountsResponse {
   previous: string; // url
@@ -40,18 +41,20 @@ export interface IRobinhoodAccount {
   providedIn: 'root'
 })
 export class AccountsClientService {
+  // TODO: move this to environments
   private baseUrl = 'http://localhost:8080/accounts';
 
   constructor(private http: HttpClient) { }
 
   get(): Observable<IRobinhoodAccount[]> {
-    const response: IRobinhoodAccountsResponse = JSON.parse(window.localStorage.getItem('accounts'));
-    if (response) {
+    const response: ICachedResponse<IRobinhoodAccountsResponse> = JSON.parse(window.localStorage.getItem('accounts'));
+    if (response && (Date.now() - response.localCacheTime < FOUR_HOURS)) {
       return of(response.results);
     }
-    return this.http.get<IRobinhoodAccountsResponse>(this.baseUrl).pipe(map(userResponse => {
-      window.localStorage.setItem('accounts', JSON.stringify(userResponse));
-      return userResponse.results;
+    return this.http.get<IRobinhoodAccountsResponse>(this.baseUrl).pipe(map(accountsResponse => {
+      const cachedResponse: ICachedResponse<IRobinhoodAccountsResponse> = { ...accountsResponse, localCacheTime: Date.now() };
+      window.localStorage.setItem('accounts', JSON.stringify(cachedResponse));
+      return accountsResponse.results;
     }), skipWhile(v => !v));
   }
 }

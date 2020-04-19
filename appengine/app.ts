@@ -4,6 +4,7 @@
 import cors from 'cors';
 import express from 'express';
 import alphaVantage, { IOutputSize } from './alpha-vantage/alpha-vantage';
+import { IInterval, ISpan } from './robinhood/historicals.type';
 import robinhood from './robinhood/robinhood';
 
 const app = express();
@@ -41,10 +42,39 @@ app.get('/instruments', async (req, res) => {
   res.status(200).json(instruments);
 });
 
-app.get('/historicals', async (req, res) => {
-  console.log('get historicals', req.query.symbol);
-  const historicals = await alphaVantage.getHistoricals(
-    req.query.symbol as string,
+app.get('/historicals/daily/:symbol', async (req, res) => {
+  console.log('get daily historicals', req.params.symbol);
+  const historicals = await alphaVantage.getDaily(
+    req.params.symbol as string,
+    req.query.outputSize as IOutputSize,
+  );
+  res.status(200).json(historicals);
+});
+
+app.get('/historicals/intraday/:symbol', async (req, res) => {
+  console.log('get intraday historicals', req.params.symbol);
+  const historicals = await robinhood.getHistoricals(
+    req.params.symbol as string,
+    req.query.interval as IInterval,
+    req.query.span as ISpan,
+
+  );
+  res.status(200).json(historicals);
+});
+
+app.get('/historicals/weekly/:symbol', async (req, res) => {
+  console.log('get weekly historicals', req.params.symbol);
+  const historicals = await alphaVantage.getWeekly(
+    req.params.symbol as string,
+    req.query.outputSize as IOutputSize,
+  );
+  res.status(200).json(historicals);
+});
+
+app.get('/historicals/monthly/:symbol', async (req, res) => {
+  console.log('get monthly historicals', req.params.symbol);
+  const historicals = await alphaVantage.getMonthly(
+    req.params.symbol as string,
     req.query.outputSize as IOutputSize,
   );
   res.status(200).json(historicals);
