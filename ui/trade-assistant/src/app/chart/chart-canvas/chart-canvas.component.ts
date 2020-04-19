@@ -1,22 +1,20 @@
 import { Component, OnInit, ViewChild, ElementRef, Input } from '@angular/core';
-import FinancialChart from '../chart';
+import FinancialChart from '../../instruments/chart';
 import { Chart } from 'chart.js';
 import { HistoricalsClientService, IHistoricals } from '../../shared/historicals-client.service';
-import { ONE_YEAR } from './node_modules/src/app/shared/client-helper.functions';
-import { HistoricalDataService } from './node_modules/src/app/shared/historical-data.service';
+import { ONE_YEAR } from 'src/app/shared/client-helper.functions';
+import { HistoricalDataService } from 'src/app/shared/historical-data.service';
 
 @Component({
-  selector: 'app-chart',
-  templateUrl: './chart.component.html',
-  styleUrls: ['./chart.component.scss']
+  selector: 'app-chart-canvas',
+  templateUrl: './chart-canvas.component.html',
+  styleUrls: ['./chart-canvas.component.scss']
 })
-export class ChartComponent implements OnInit {
+export class ChartCanvasComponent implements OnInit {
   private chart: Chart;
-  private chart2: Chart;
 
   @Input() symbol: string;
   @ViewChild('chartCanvas', { static: true }) canvas: ElementRef;
-  @ViewChild('chartCanvas2', { static: true }) canvas2: ElementRef;
 
   constructor(
     private historicalClientService: HistoricalsClientService,
@@ -71,7 +69,7 @@ export class ChartComponent implements OnInit {
       }
     );
     // store chart locally for updating
-    this.chart2 = new FinancialChart(this.canvas2.nativeElement.getContext('2d'), {
+    this.chart = new FinancialChart(this.canvas.nativeElement.getContext('2d'), {
       type: 'candlestick',
       data: {
         datasets: [{

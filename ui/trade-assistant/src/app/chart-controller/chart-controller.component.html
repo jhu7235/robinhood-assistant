@@ -1,0 +1,12 @@
+<mat-button-toggle-group #group="matButtonToggleGroup">
+  <mat-button-toggle value="intraday">
+    Intraday
+  </mat-button-toggle>
+  <mat-button-toggle value="daily">
+    Daily
+  </mat-button-toggle>
+  <mat-button-toggle value="monthly">
+    Monthly
+  </mat-button-toggle>
+</mat-button-toggle-group>
+<div class="example-selected-value">Selected value: {{ group.value }}</div>

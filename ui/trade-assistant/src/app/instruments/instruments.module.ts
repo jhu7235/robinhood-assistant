@@ -4,22 +4,21 @@ import { InstrumentsComponent } from './instruments.component';
 import { InstrumentComponent } from './instrument/instrument.component';
 import { SharedMaterialModule } from '../shared-material/shared-material.module';
 import { InstrumentsTableComponent } from './instruments-table/instruments-table.component';
-import { ChartComponent } from './chart/chart.component';
+import { ChartModule } from '../chart/chart.module';
 
 @NgModule({
   declarations: [
     InstrumentsComponent,
     InstrumentComponent,
     InstrumentsTableComponent,
-    ChartComponent,
   ],
   imports: [
     CommonModule,
     SharedMaterialModule,
+    ChartModule,
   ],
   exports: [
     InstrumentsComponent,
-    ChartComponent,
   ]
 })
 export class InstrumentsModule { }

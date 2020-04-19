@@ -6,8 +6,10 @@ import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 
+// a collection of all the material modules that are used.
 const sharedMaterialModules = [
   CommonModule,
   MatPaginatorModule,
@@ -16,6 +18,7 @@ const sharedMaterialModules = [
   MatSortModule,
   MatTabsModule,
   MatDividerModule,
+  MatButtonToggleModule,
 ];
 
 @NgModule({
