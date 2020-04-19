@@ -65,7 +65,6 @@ export class HistoricalsClientService {
     } else {
       return { outputSize: 'compact' };
     }
-
   }
 
 

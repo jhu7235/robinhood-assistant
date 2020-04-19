@@ -110,52 +110,21 @@ export class ChartCanvasComponent implements OnInit, OnChanges {
       }
     );
 
+    if (this.chart) {
+      this.chart.data.datasets[0].data = data;
+      this.chart.update();
+      return;
+    }
+
     // store chart locally for updating
     this.chart = new FinancialChart(this.canvas.nativeElement.getContext('2d'), {
       type: 'candlestick',
       data: {
         datasets: [{
           label: this.symbol,
-          data
-        }]
+          data,
+        }],
       },
-      options: {
-        scales: {
-          // xAxes: [{
-          //   afterBuildTicks(scale, ticks) {
-          //     const majorUnit = scale._majorUnit;
-          //     const firstTick = ticks[0];
-          //     let i;
-          //     let ilen;
-          //     let val;
-          //     let tick;
-          //     let currMajor;
-          //     let lastMajor;
-
-          //     val = new Date(ticks[0].value);
-          //     if ((majorUnit === 'minute' && val.second === 0)
-          //       || (majorUnit === 'hour' && val.minute === 0)
-          //       || (majorUnit === 'day' && val.hour === 9)
-          //       || (majorUnit === 'month' && val.day <= 3 && val.weekday === 1)
-          //       || (majorUnit === 'year' && val.month === 0)) {
-          //       firstTick.major = true;
-          //     } else {
-          //       firstTick.major = false;
-          //     }
-          //     lastMajor = val.get(majorUnit);
-
-          //     for (i = 1, ilen = ticks.length; i < ilen; i++) {
-          //       tick = ticks[i];
-          //       val = new Date(ticks[0].value);
-          //       currMajor = val.get(majorUnit);
-          //       tick.major = currMajor !== lastMajor;
-          //       lastMajor = currMajor;
-          //     }
-          //     return ticks;
-          //   }
-          // }]
-        }
-      }
     });
   }
 }
