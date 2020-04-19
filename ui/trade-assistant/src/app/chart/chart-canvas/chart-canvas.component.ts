@@ -29,7 +29,7 @@ export class ChartCanvasComponent implements OnInit, OnChanges {
       case 'daily':
         return 3 * ONE_MONTH;
       case 'weekly':
-        return 6 * ONE_MONTH;
+        return 2 * ONE_YEAR;
       case 'monthly':
         return Infinity;
       default:
