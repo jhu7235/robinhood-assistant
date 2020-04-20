@@ -31,7 +31,7 @@ class RobinhoodWrapper {
     const positionResponse: IRobinhoodPositionResponse = await async(this.robinhood.positions);
     const promises = positionResponse.results.map(async (position): Promise<IPosition> => {
       const instrument = await this.getInstrument(position.instrument);
-      return Object.assign({}, position, { symbol: instrument.symbol, name: instrument.simple_name });
+      return Object.assign({}, position, { symbol: instrument.symbol, simple_name: instrument.simple_name });
     });
     return Object.assign({}, positionResponse, { results: await Promise.all(promises) });
   }
@@ -102,7 +102,7 @@ class RobinhoodWrapper {
 
     const promises = ordersResponse.results.map(async (order): Promise<IOrder> => {
       const instrument = await this.getInstrument(order.instrument);
-      return Object.assign({}, order, { symbol: instrument.symbol, name: instrument.simple_name });
+      return Object.assign({}, order, { symbol: instrument.symbol, simple_name: instrument.simple_name });
     });
     const nextResults = ordersResponse.next ? (await this.getOrders(ordersResponse.next)).results : [];
     return Object.assign({}, ordersResponse, { results: [...await Promise.all(promises), ...nextResults] });

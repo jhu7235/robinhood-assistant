@@ -18,6 +18,8 @@ import { ChartModule } from '../chart/chart.module';
     ChartModule,
   ],
   exports: [
+    InstrumentComponent,
+    // TODO: deprecate, might not use anymore
     InstrumentsComponent,
   ]
 })

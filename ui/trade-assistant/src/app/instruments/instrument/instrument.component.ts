@@ -1,6 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { IRobinhoodInstrument } from '../../shared/instruments-client.service';
 import { QuotesClientService, IRobinhoodQuote } from 'src/app/shared/quotes-client.service';
+import { IHolding } from 'src/app/holdings/holdings.service';
 
 @Component({
   selector: 'app-instrument',
@@ -10,7 +11,7 @@ import { QuotesClientService, IRobinhoodQuote } from 'src/app/shared/quotes-clie
 export class InstrumentComponent implements OnInit {
   public quote: IRobinhoodQuote;
   public showChart = false;
-  @Input() instrument: IRobinhoodInstrument;
+  @Input() instrument: IRobinhoodInstrument | IHolding;
 
   constructor(
     private quotesClientService: QuotesClientService,
