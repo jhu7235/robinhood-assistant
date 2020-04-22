@@ -70,7 +70,7 @@ export class HistoricalsClientService {
 
   get(symbol: string, interval: TInterval) {
     const response: ICachedResponse<IHistoricalsResponse> = JSON.parse(window.localStorage.getItem(`historicals/${interval}/${symbol}`));
-    if (response && (Date.now() - response.localCacheTime < this.intervalToExpireAge(interval))) {
+    if (response && response.data && (Date.now() - response.localCacheTime < this.intervalToExpireAge(interval))) {
       return of(response);
     }
     return this.http.get<IHistoricalsResponse>(`${this.baseUrl}/${interval}/${symbol}`, { params: this.intervalToParams(interval) })

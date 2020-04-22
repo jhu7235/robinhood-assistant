@@ -44,7 +44,7 @@ class RobinhoodWrapper {
     this.initPromise = new Promise((resolve) => {
       this.robinhood = Robinhood(this.getCredentials(), resolve);
     });
-    this.initPromise.then(() => console.log('init status', ...arguments));
+    this.initPromise.then(() => console.log('Robinhood authenticated', ...arguments));
   }
 
   public async getUser(): Promise<IRobinhoodUser> {

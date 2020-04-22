@@ -63,7 +63,7 @@ class AlphaAdvantageWrapper {
    */
   private getApiKey(): string {
     const data = fs.readFileSync("credentials.json", "utf8");
-    return JSON.parse(data).alphaAdvantageApiKey;
+    return JSON.parse(data).alphaAdvantageApiKeys[Math.floor(Math.random() * 9)];
   }
 }
 
