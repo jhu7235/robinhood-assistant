@@ -58,20 +58,23 @@ class AlphaAdvantageWrapper {
     return this.polish(data);
   }
 
-  private polish(response): IAlphaVantageHistoricalResponse {
-    const data = this.alpha.util.polish(response);
+  private polish(unPolishedResponse): IAlphaVantageHistoricalResponse {
+    const response = this.alpha.util.polish(unPolishedResponse);
     for (const timestamp in response.data) {
       if (response.data.hasOwnProperty(timestamp)) {
         response.data[timestamp] = {
-          close: response.data[timestamp].close,
-          high: response.data[timestamp].high,
-          low: response.data[timestamp].low,
-          open: response.data[timestamp].open,
-          volume: response.data[timestamp].volume,
+          adjusted: response.data[timestamp].volume
+            ? Number(response.data[timestamp].volume)
+            : undefined,
+          close: Number(response.data[timestamp].close),
+          high: Number(response.data[timestamp].high),
+          low: Number(response.data[timestamp].low),
+          open: Number(response.data[timestamp].open),
+          volume: Number(response.data[timestamp].volume),
         };
       }
     }
-    return data as IAlphaVantageHistoricalResponse;
+    return response as IAlphaVantageHistoricalResponse;
   }
 
   /**

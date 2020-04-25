@@ -81,7 +81,7 @@ class RobinhoodWrapper {
     if (!this.instruments[instrumentId]) {
       this.instruments[instrumentId] = this.httpGet(this.robinhood.url, instrumentId)
         .then(async (instrument: IRobinhoodInstrument) => {
-          instrument.fundamentals = await this.httpGet(this.robinhood.url, `${instrument.fundamentals}/${instrument.symbol}`);
+          instrument.fundamentals = await this.httpGet(this.robinhood.url, `${instrument.fundamentals}`);
           return instrument;
         });
       console.log('fetching instrument', (await this.instruments[instrumentId]).symbol);
