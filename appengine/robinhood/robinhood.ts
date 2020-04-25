@@ -28,7 +28,7 @@ class RobinhoodWrapper {
    */
   public async getPositions(): Promise<IPositionResponse> {
     await this.initPromise;
-    const positionResponse: IRobinhoodPositionResponse = await async(this.robinhood.positions);
+    const positionResponse: IRobinhoodPositionResponse = await this.httpGet(this.robinhood.positions);
     const promises = positionResponse.results.map(async (position): Promise<IPosition> => {
       const instrument = await this.getInstrument(position.instrument);
       return Object.assign({}, position, { symbol: instrument.symbol, simple_name: instrument.simple_name });
@@ -49,17 +49,17 @@ class RobinhoodWrapper {
 
   public async getUser(): Promise<IRobinhoodUser> {
     await this.initPromise;
-    return async(this.robinhood.user);
+    return this.httpGet(this.robinhood.user);
   }
 
   public async getQuote(symbol: string): Promise<IRobinhoodQuoteResponse> {
     await this.initPromise;
-    return async(this.robinhood.quote_data, symbol);
+    return this.httpGet(this.robinhood.quote_data, symbol);
   }
 
   public async getAccounts(): Promise<IRobinhoodAccountsResponse> {
     await this.initPromise;
-    return async(this.robinhood.accounts);
+    return this.httpGet(this.robinhood.accounts);
   }
 
   /**
@@ -69,7 +69,7 @@ class RobinhoodWrapper {
     await this.initPromise;
     await this.getOrders();
     return Promise.all(Object.values(this.instruments));
-    // return async(this.robinhood.instruments, null);
+    // return this.httpGet(this.robinhood.instruments, null);
   }
 
   /**
@@ -79,9 +79,9 @@ class RobinhoodWrapper {
     await this.initPromise;
     // check cache first
     if (!this.instruments[instrumentId]) {
-      this.instruments[instrumentId] = async(this.robinhood.url, instrumentId)
+      this.instruments[instrumentId] = this.httpGet(this.robinhood.url, instrumentId)
         .then(async (instrument: IRobinhoodInstrument) => {
-          instrument.fundamentals = await async(this.robinhood.url, `${instrument.fundamentals}/${instrument.symbol}`);
+          instrument.fundamentals = await this.httpGet(this.robinhood.url, `${instrument.fundamentals}/${instrument.symbol}`);
           return instrument;
         });
       console.log('fetching instrument', (await this.instruments[instrumentId]).symbol);
@@ -97,8 +97,8 @@ class RobinhoodWrapper {
   public async getOrders(nextUrl?: string): Promise<IOrderResponse> {
     await this.initPromise;
     const ordersResponse: IRobinhoodOrdersResponse = nextUrl
-      ? await async(this.robinhood.url, nextUrl)
-      : await async(this.robinhood.orders, null);
+      ? await this.httpGet(this.robinhood.url, nextUrl)
+      : await this.httpGet(this.robinhood.orders, null);
 
     const promises = ordersResponse.results.map(async (order): Promise<IOrder> => {
       const instrument = await this.getInstrument(order.instrument);
@@ -114,7 +114,12 @@ class RobinhoodWrapper {
     span: ISpan,
   ): Promise<IAlphaVantageHistoricalResponse> {
     await this.initPromise;
-    const response: IRobinhoodHistoricalsResponse = await async(this.robinhood.historicals, symbol, interval, span);
+    const response: IRobinhoodHistoricalsResponse = await this.httpGet(
+      this.robinhood.historicals,
+      symbol,
+      interval,
+      span,
+    );
     const fakeAVResponse: any = {
       data: {},
       meta: `robinhood daily response (${interval}, ${span})`,
@@ -129,6 +134,16 @@ class RobinhoodWrapper {
       };
     });
     return fakeAVResponse as IAlphaVantageHistoricalResponse;
+  }
+
+  // TODO: move to ts decorator
+  private async httpGet<T>(func, ...parameters): Promise<T> {
+    const response = await async(func, ...parameters);
+    // error are stored in details
+    if (response.detail) {
+      throw new Error(response.detail);
+    }
+    return response;
   }
 
   /**
