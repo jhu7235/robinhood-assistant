@@ -20,8 +20,8 @@ class AlphaAdvantageWrapper {
    * @param outputSize 'compact' for past 100 days, 'full' past 20 years
    */
   public async getDaily(symbol: string, outputSize: IOutputSize): Promise<IAlphaVantageHistoricalResponse> {
-    const data = await this.alpha.data.daily(symbol, outputSize, 'json');
-    return this.alpha.util.polish(data);
+    const data = await this.alpha.data.daily_adjusted(symbol, outputSize, 'json');
+    return this.polish(data);
   }
 
   /**
@@ -35,7 +35,7 @@ class AlphaAdvantageWrapper {
     interval: IInterval,
   ): Promise<IAlphaVantageHistoricalResponse> {
     const data = await this.alpha.data.intraday(symbol, outputSize, 'json', interval);
-    return this.alpha.util.polish(data);
+    return this.polish(data);
   }
 
   /**
@@ -45,7 +45,7 @@ class AlphaAdvantageWrapper {
    */
   public async getWeekly(symbol: string, outputSize: IOutputSize): Promise<IAlphaVantageHistoricalResponse> {
     const data = await this.alpha.data.weekly(symbol, outputSize, 'json');
-    return this.alpha.util.polish(data);
+    return this.polish(data);
   }
 
   /**
@@ -55,7 +55,23 @@ class AlphaAdvantageWrapper {
    */
   public async getMonthly(symbol: string, outputSize: IOutputSize): Promise<IAlphaVantageHistoricalResponse> {
     const data = await this.alpha.data.monthly(symbol, outputSize, 'json');
-    return this.alpha.util.polish(data);
+    return this.polish(data);
+  }
+
+  private polish(response): IAlphaVantageHistoricalResponse {
+    const data = this.alpha.util.polish(response);
+    for (const timestamp in response.data) {
+      if (response.data.hasOwnProperty(timestamp)) {
+        response.data[timestamp] = {
+          close: response.data[timestamp].close,
+          high: response.data[timestamp].high,
+          low: response.data[timestamp].low,
+          open: response.data[timestamp].open,
+          volume: response.data[timestamp].volume,
+        };
+      }
+    }
+    return data as IAlphaVantageHistoricalResponse;
   }
 
   /**
@@ -63,7 +79,9 @@ class AlphaAdvantageWrapper {
    */
   private getApiKey(): string {
     const data = fs.readFileSync("credentials.json", "utf8");
-    return JSON.parse(data).alphaAdvantageApiKeys[Math.floor(Math.random() * 9)];
+    const keyIndex = Math.floor(Math.random() * 9);
+    console.log({ keyIndex });
+    return JSON.parse(data).alphaAdvantageApiKeys[keyIndex];
   }
 }
 
