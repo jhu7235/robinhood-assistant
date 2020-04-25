@@ -63,8 +63,9 @@ class AlphaAdvantageWrapper {
     for (const timestamp in response.data) {
       if (response.data.hasOwnProperty(timestamp)) {
         response.data[timestamp] = {
-          adjusted: response.data[timestamp].volume
-            ? Number(response.data[timestamp].volume)
+          ...response.data[timestamp],
+          adjusted: response.data[timestamp].adjusted
+            ? Number(response.data[timestamp].adjusted)
             : undefined,
           close: Number(response.data[timestamp].close),
           high: Number(response.data[timestamp].high),

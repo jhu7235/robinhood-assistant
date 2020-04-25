@@ -12,12 +12,13 @@ interface IMeta {
   zone: string;
 }
 
-interface IHistorical {
-  open: string; // number
-  high: string; // number
-  low: string; // number
-  close: string; // number
-  volume: string; // number
+export interface IHistorical {
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+  adjusted?: number;
 }
 
 export type TInterval = 'daily' | 'intraday' | 'weekly' | 'monthly';
@@ -26,7 +27,7 @@ export interface IHistoricals {
   [timestamp: string]: IHistorical;
 }
 
-interface IHistoricalsResponse {
+export interface IHistoricalsResponse {
   meta: IMeta;
   data: IHistoricals;
 }
@@ -62,6 +63,8 @@ export class HistoricalsClientService {
     if (interval === 'intraday') {
       // span is from robinhood api
       return { outputSize: 'full', interval: '5minute', span: 'day' };
+    } else if (interval === 'daily') {
+      return { outputSize: 'full' };
     } else {
       return { outputSize: 'compact' };
     }
@@ -70,7 +73,12 @@ export class HistoricalsClientService {
 
   get(symbol: string, interval: TInterval) {
     const response: ICachedResponse<IHistoricalsResponse> = JSON.parse(window.localStorage.getItem(`historicals/${interval}/${symbol}`));
-    if (response && response.data && (Date.now() - response.localCacheTime < this.intervalToExpireAge(interval))) {
+    if (
+      response
+      && response.data
+      && (Date.now() - response.localCacheTime < this.intervalToExpireAge(interval))
+      // && response.meta.symbol !== 'NFLX'
+    ) {
       return of(response);
     }
     return this.http.get<IHistoricalsResponse>(`${this.baseUrl}/${interval}/${symbol}`, { params: this.intervalToParams(interval) })
