@@ -7,6 +7,9 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 
 
 // a collection of all the material modules that are used.
@@ -19,6 +22,9 @@ const sharedMaterialModules = [
   MatTabsModule,
   MatDividerModule,
   MatButtonToggleModule,
+  MatFormFieldModule,
+  ReactiveFormsModule,
+  MatButtonModule,
 ];
 
 @NgModule({

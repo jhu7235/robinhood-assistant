@@ -82,15 +82,20 @@ export class BackTestService {
   }
 
   /**
-   * Back test if we buy at a 30% drop at the 3 month mark
+   * Back test if we buy at a stock <priceChange> within <lookBackPeriod> window
+   * @param lookBackPeriod in days
+   * @param percentageChange in percent
    */
-  public by3Month(historicalsResponse: IHistoricalsResponse) {
+  public by3Month(historicalsResponse: IHistoricalsResponse, lookBackPeriod: number, percentageChange: number) {
     if (
       !historicalsResponse.meta.information ||
       !historicalsResponse.meta.information.toLocaleLowerCase().includes('daily')) {
-      return;
+      return null;
     }
+    const lookBackDifference = lookBackPeriod - 1;
     console.log(`back testing ${historicalsResponse.meta.symbol}`);
+
+    const transactions = [];
 
     const data = this.getSortedData(historicalsResponse);
     const historicals = this.accountForSplit(data);
@@ -99,15 +104,15 @@ export class BackTestService {
     let cashOut = 0;
     let shares = 0;
     let oldHigh: IOldHigh = { date: 0, value: -Infinity };
-    for (let index = 89; index < historicals.length; index++) {
+    for (let index = lookBackDifference; index < historicals.length; index++) {
       const today = historicals[index].historical;
       const timestamp = historicals[index].timestamp;
-      oldHigh = this.getMaxWithinSpan({ start: index - 89, end: index }, historicals, oldHigh);
+      oldHigh = this.getMaxWithinSpan({ start: index - lookBackDifference, end: index }, historicals, oldHigh);
 
       const change = today.low - oldHigh.value;
       const normalizedChange = change / oldHigh.value;
 
-      if (normalizedChange < -.25) {
+      if (normalizedChange < percentageChange) {
         const buyDailyAverage = this.roundToHundredth(this.average(today.open, today.close));
         cashIn += 100;
         shares += 100 / buyDailyAverage;
@@ -124,7 +129,7 @@ export class BackTestService {
           cashOut += (100 / buyDailyAverage) * sellDailyAverage;
         }
 
-        console.log({
+        transactions.push({
           symbol: historicalsResponse.meta.symbol,
           today,
           drop: `${-this.roundToHundredth(normalizedChange) * 100}% ($${-this.roundToHundredth(change)})`,
@@ -136,14 +141,13 @@ export class BackTestService {
           cashIn,
           cashOut,
           shares,
+          lossMoneyInOneYear: sellDailyAverage - buyDailyAverage < 0,
           equity: shares * sellDailyAverage
         });
-
-        if (sellDailyAverage - buyDailyAverage < 0) {
-          console.warn('loss money');
-        }
       }
     }
+
+    return transactions;
 
   }
 }

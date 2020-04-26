@@ -1,0 +1,57 @@
+<div class="back-test">
+  <form
+    class="form-container"
+    [formGroup]="options"
+    [style.fontSize.px]="12"
+    (ngSubmit)="test()"
+  >
+    <div>
+      buy
+      <mat-form-field appearance="fill">
+        <mat-label>stock ticker</mat-label>
+        <input
+          matInput
+          placeholder="Ex. NFLX"
+          required
+          [formControl]="tickerControl"
+        />
+      </mat-form-field>
+      when
+      <mat-form-field appearance="fill">
+        <mat-label>price change</mat-label>
+        <input
+          matInput
+          type="number"
+          placeholder="Ex. -25%"
+          [formControl]="percentageChangeControl"
+        />
+        <span matSuffix>%</span>
+      </mat-form-field>
+      within a
+      <mat-form-field appearance="fill">
+        <mat-label>period</mat-label>
+        <input
+          matInput
+          type="number"
+          placeholder="Ex.90 days"
+          [formControl]="lookBackPeriodControl"
+          min="10"
+        />
+        <span matSuffix>days</span>
+      </mat-form-field>
+    </div>
+    <button
+      class="submit-button"
+      mat-raised-button
+      color="primary"
+      type="submit"
+      [disabled]="!options.valid"
+    >
+      Submit
+    </button>
+  </form>
+</div>
+<app-chart
+  *ngIf="formSubmitted"
+  [symbol]="tickerControl.value.toUpperCase()"
+></app-chart>
