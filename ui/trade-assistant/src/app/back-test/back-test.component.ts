@@ -22,6 +22,8 @@ export class BackTestComponent implements OnInit {
   public tickerControl = new FormControl();
   public lookBackPeriodControl = new FormControl(90);
   public formSubmitted = null;
+  // TODO: fix type
+  public results: any[];
 
   constructor(
     formBuilder: FormBuilder,
@@ -44,12 +46,11 @@ export class BackTestComponent implements OnInit {
       this.formSubmitted = true;
       this.subscription = this.historicalsClientService.get(this.tickerControl.value.toUpperCase(), 'daily')
         .subscribe((response) => {
-          const backTestResults = this.backTestService.by3Month(
+          this.results = this.backTestService.by3Month(
             response,
             this.lookBackPeriodControl.value,
             this.percentageChangeControl.value / 100,
           );
-          console.log({ backTestResults });
         });
     }
   }

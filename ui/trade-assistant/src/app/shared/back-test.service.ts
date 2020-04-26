@@ -81,10 +81,16 @@ export class BackTestService {
     }
   }
 
+  private calcChange(oldHigh: number, currentLow: number) {
+    const change = currentLow - oldHigh;
+    const percent = change / oldHigh;
+    return { value: change, percent };
+  }
+
   /**
    * Back test if we buy at a stock <priceChange> within <lookBackPeriod> window
    * @param lookBackPeriod in days
-   * @param percentageChange in percent
+   * @param percentageChange in fraction
    */
   public by3Month(historicalsResponse: IHistoricalsResponse, lookBackPeriod: number, percentageChange: number) {
     if (
@@ -101,48 +107,47 @@ export class BackTestService {
     const historicals = this.accountForSplit(data);
 
     let cashIn = 0;
-    let cashOut = 0;
     let shares = 0;
     let oldHigh: IOldHigh = { date: 0, value: -Infinity };
     for (let index = lookBackDifference; index < historicals.length; index++) {
-      const today = historicals[index].historical;
-      const timestamp = historicals[index].timestamp;
+
+      const today = historicals[index];
       oldHigh = this.getMaxWithinSpan({ start: index - lookBackDifference, end: index }, historicals, oldHigh);
-
-      const change = today.low - oldHigh.value;
-      const normalizedChange = change / oldHigh.value;
-
-      if (normalizedChange < percentageChange) {
-        const buyDailyAverage = this.roundToHundredth(this.average(today.open, today.close));
+      const change = this.calcChange(oldHigh.value, today.historical.low);
+      if (change.percent < percentageChange) {
+        const dailyAverage = this.roundToHundredth(this.average(today.historical.open, today.historical.close));
         cashIn += 100;
-        shares += 100 / buyDailyAverage;
+        shares += 100 / dailyAverage;
         oldHigh = {
-          date: new Date(timestamp).getTime(),
+          date: new Date(today.timestamp).getTime(),
           // sets the buy value as the oldHigh value
-          value: buyDailyAverage,
+          value: dailyAverage,
         };
 
-        const sell = historicals[index + TRADING_DAYS_PER_YEAR];
-        let sellDailyAverage;
-        if (sell) {
-          sellDailyAverage = this.roundToHundredth(this.average(sell.historical.open, sell.historical.close));
-          cashOut += (100 / buyDailyAverage) * sellDailyAverage;
+        const oneYearLater = historicals[index + TRADING_DAYS_PER_YEAR];
+        let postOneYearDailyAverage;
+        if (oneYearLater) {
+          postOneYearDailyAverage = this.roundToHundredth(this.average(oneYearLater.historical.open, oneYearLater.historical.close));
         }
 
         transactions.push({
-          symbol: historicalsResponse.meta.symbol,
           today,
-          drop: `${-this.roundToHundredth(normalizedChange) * 100}% ($${-this.roundToHundredth(change)})`,
-          buy: `$${buyDailyAverage} on ${timestamp}`,
-          sell: sell ? `$${sellDailyAverage} on ${sell.timestamp}` : 'not sold yet',
-          profit: sell ? `${
-            this.roundToHundredth((sellDailyAverage - buyDailyAverage) / buyDailyAverage) * 100}%: ($${
-            this.roundToHundredth(sellDailyAverage - buyDailyAverage)})` : 'not sold yet',
+          trigger: {
+            percent: change.percent * 100,
+            value: change.value
+          },
           cashIn,
-          cashOut,
           shares,
-          lossMoneyInOneYear: sellDailyAverage - buyDailyAverage < 0,
-          equity: shares * sellDailyAverage
+          equity: shares * dailyAverage,
+          oneYearLater: {
+            ...oneYearLater,
+            change: {
+              value: postOneYearDailyAverage - dailyAverage,
+              percent: (postOneYearDailyAverage - dailyAverage) / dailyAverage * 100,
+            },
+            lossMoney: postOneYearDailyAverage - dailyAverage < 0,
+
+          },
         });
       }
     }
