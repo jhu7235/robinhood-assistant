@@ -21,7 +21,7 @@ export interface IHistorical {
   adjusted?: number;
 }
 
-export type TInterval = 'daily' | 'intraday' | 'weekly' | 'monthly';
+export type IInterval = 'daily' | 'intraday' | 'weekly' | 'monthly';
 
 export interface IHistoricals {
   [timestamp: string]: IHistorical;
@@ -44,7 +44,7 @@ export class HistoricalsClientService {
   /**
    * Expire age should be about 1/4 of the interval. Except for intraday. That is immediate.
    */
-  intervalToExpireAge(interval: TInterval) {
+  intervalToExpireAge(interval: IInterval) {
     switch (interval) {
       case 'intraday':
         return ONE_MINUTE;
@@ -59,7 +59,7 @@ export class HistoricalsClientService {
     }
   }
 
-  private intervalToParams(interval: TInterval) {
+  private intervalToParams(interval: IInterval) {
     if (interval === 'intraday') {
       // span is from robinhood api
       return { outputSize: 'full', interval: '5minute', span: 'day' };
@@ -71,7 +71,7 @@ export class HistoricalsClientService {
   }
 
 
-  get(symbol: string, interval: TInterval) {
+  get(symbol: string, interval: IInterval) {
     const response: ICachedResponse<IHistoricalsResponse> = JSON.parse(window.localStorage.getItem(`historicals/${interval}/${symbol}`));
     if (
       response

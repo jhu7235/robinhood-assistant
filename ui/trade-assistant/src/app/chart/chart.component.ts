@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { TInterval } from '../shared/historicals-client.service';
+import { IInterval } from '../shared/historicals-client.service';
 
 @Component({
   selector: 'app-chart',
@@ -8,7 +8,7 @@ import { TInterval } from '../shared/historicals-client.service';
 })
 export class ChartComponent implements OnInit {
   @Input() symbol: string;
-  interval: TInterval = 'monthly';
+  interval: IInterval = 'monthly';
 
   constructor() { }
 
