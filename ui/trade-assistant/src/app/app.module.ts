@@ -9,6 +9,7 @@ import { HoldingsModule } from './holdings/holdings.module';
 import { SharedModule } from './shared/shared.module';
 import { SharedMaterialModule } from './shared-material/shared-material.module';
 import { InstrumentsModule } from './instruments/instruments.module';
+import { BackTestModule } from './back-test/back-test.module';
 
 
 @NgModule({
@@ -23,6 +24,7 @@ import { InstrumentsModule } from './instruments/instruments.module';
     HoldingsModule,
     SharedModule,
     InstrumentsModule,
+    BackTestModule,
 
     SharedMaterialModule,
     BrowserAnimationsModule,

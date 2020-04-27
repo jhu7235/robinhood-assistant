@@ -1,5 +1,5 @@
 import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
-import { TInterval } from '../shared/historicals-client.service';
+import { IInterval } from '../shared/historicals-client.service';
 
 @Component({
   selector: 'app-chart-controller',
@@ -8,9 +8,9 @@ import { TInterval } from '../shared/historicals-client.service';
 })
 export class ChartControllerComponent implements OnInit {
   @Output() changed = new EventEmitter();
-  public interval: TInterval;
+  public interval: IInterval;
 
-  onValueChange(event: { value: TInterval }) {
+  onValueChange(event: { value: IInterval }) {
     this.interval = event.value;
     this.changed.emit(event);
   }

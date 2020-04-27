@@ -6,7 +6,7 @@ import { ONE_DAY } from '../shared/client-helper.functions';
 
 export interface IHolding extends Omit<IRobinhoodExecution, 'quantity'> {
   symbol: string;
-  name: string;
+  simple_name: string;
   side: string;
   quantity: number;
 }
@@ -30,7 +30,7 @@ export class HoldingsService {
         ...execution,
         quantity: Number(execution.quantity),
         symbol: order.symbol,
-        name: order.name,
+        simple_name: order.simple_name,
         age: this.timestampToAge(execution.timestamp),
         side: order.side,
       })));

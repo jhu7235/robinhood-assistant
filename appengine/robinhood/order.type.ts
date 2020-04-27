@@ -2,6 +2,7 @@
 export interface IRobinhoodOrdersResponse {
   next: string;
   previous: string;
+  detail: string;
   results: IRobinhoodOrder[];
 }
 

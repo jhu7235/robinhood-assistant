@@ -33,10 +33,10 @@ export class HistoricalDataService {
         const time = new Date(timestamp).getTime();
         if (this.isBetweenTimeInterval(time, timeInterval)) {
           historicals.push({
-            h: Number(historical.high),
-            l: Number(historical.low),
-            o: Number(historical.open),
-            c: Number(historical.close),
+            h: historical.high,
+            l: historical.low,
+            o: historical.open,
+            c: historical.close,
             t: time
           });
         }

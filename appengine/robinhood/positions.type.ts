@@ -31,6 +31,6 @@ interface IRobinhoodPosition {
 }
 
 export interface IPosition extends IRobinhoodPosition {
-  name: string;
+  simple_name: string;
   symbol: string;
 }

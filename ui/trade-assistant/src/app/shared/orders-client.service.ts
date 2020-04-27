@@ -71,7 +71,7 @@ export interface IRobinhoodOrder {
 
 export interface IOrder extends IRobinhoodOrder {
   symbol: string;
-  name: string;
+  simple_name: string;
 }
 
 

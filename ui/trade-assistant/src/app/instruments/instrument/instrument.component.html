@@ -23,6 +23,7 @@
     <p *ngIf="quote">Market: {{ quote.last_trade_price | currency }}</p>
   </div>
 </div>
-<div *ngIf="showChart">
+<!-- TODO: change this to true forever -->
+<div *ngIf="true">
   <app-chart [symbol]="instrument.symbol"></app-chart>
 </div>

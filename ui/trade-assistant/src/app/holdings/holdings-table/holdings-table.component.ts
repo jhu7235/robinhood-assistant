@@ -5,6 +5,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { IHolding } from '../holdings.service';
+import { trigger, state, transition, style, animate } from '@angular/animations';
 
 
 /**
@@ -13,19 +14,36 @@ import { IHolding } from '../holdings.service';
 @Component({
   selector: 'app-holdings-table',
   templateUrl: './holdings-table.component.html',
-  styleUrls: ['./holdings-table.component.scss']
+  styleUrls: ['./holdings-table.component.scss'],
+  animations: [
+    trigger('detailExpand', [
+      state('collapsed', style({ height: '0px', minHeight: '0' })),
+      state('expanded', style({ height: '*' })),
+      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+    ]),
+  ],
 })
 export class HoldingsTableComponent implements OnInit {
   public holdings: IHolding[] = [];
+
   // column ordering
   public displayedColumns: string[] = ['symbol', 'name', 'quantity', 'age', 'timestamp'];
+
   public dataSource: MatTableDataSource<IHolding>;
+
   @ViewChild(MatPaginator, { static: false })
   public paginator: MatPaginator;
+
   @ViewChild(MatSort, { static: false })
   public sort: MatSort;
+
   public totalQuantity = 0;
+
   public filterValue: string;
+
+  // TODO: type expandedElement
+  public expandedRow: IHolding | null;
+
 
   constructor(private ordersClient: OrdersClientService, private holdingsService: HoldingsService) { }
 

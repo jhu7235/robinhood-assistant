@@ -7,11 +7,12 @@ interface IMeta {
 }
 
 interface IHistorical {
-  open: string; // number
-  high: string; // number
-  low: string; // number
-  close: string; // number
-  volume: string; // number
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+  adjusted?: number;
 }
 
 export interface IHistoricals {

@@ -1,9 +1,10 @@
 import { Component, OnInit, ViewChild, ElementRef, Input, OnChanges, SimpleChanges } from '@angular/core';
 import FinancialChart from '../../instruments/chart';
 import { Chart } from 'chart.js';
-import { HistoricalsClientService, IHistoricals } from '../../shared/historicals-client.service';
+import { HistoricalsClientService, IHistoricals, IInterval } from '../../shared/historicals-client.service';
 import { ONE_YEAR, ONE_MONTH, ONE_DAY } from 'src/app/shared/client-helper.functions';
 import { HistoricalDataService } from 'src/app/shared/historical-data.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-chart-canvas',
@@ -13,13 +14,15 @@ import { HistoricalDataService } from 'src/app/shared/historical-data.service';
 export class ChartCanvasComponent implements OnInit, OnChanges {
 
   constructor(
-    private historicalClientService: HistoricalsClientService,
-    private historicalDataService: HistoricalDataService
+    private historicalsClientService: HistoricalsClientService,
+    private historicalDataService: HistoricalDataService,
   ) { }
+
+  private subscription = new Subscription();
   private chart: Chart;
 
   @Input() symbol: string;
-  @Input() interval: string;
+  @Input() interval: IInterval;
   @ViewChild('chartCanvas', { static: true }) canvas: ElementRef;
 
   private getSpan() {
@@ -41,8 +44,11 @@ export class ChartCanvasComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.interval.currentValue !== changes.interval.previousValue) {
-      this.historicalClientService.get(this.symbol, changes.interval.currentValue)
+    const key = Object.keys(changes)[0];
+    if (
+      (changes[key].currentValue !== changes[key].previousValue)) {
+      this.subscription.unsubscribe();
+      this.subscription = this.historicalsClientService.get(this.symbol, this.interval)
         .subscribe((historicals) => {
           // TODO: remove when not needed anymore
           // this.buildScatterChart(historicals.data);
@@ -112,6 +118,7 @@ export class ChartCanvasComponent implements OnInit, OnChanges {
 
     if (this.chart) {
       this.chart.data.datasets[0].data = data;
+      this.chart.data.datasets[0].label = this.symbol;
       this.chart.update();
       return;
     }

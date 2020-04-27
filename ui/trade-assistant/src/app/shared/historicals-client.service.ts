@@ -12,21 +12,22 @@ interface IMeta {
   zone: string;
 }
 
-interface IHistorical {
-  open: string; // number
-  high: string; // number
-  low: string; // number
-  close: string; // number
-  volume: string; // number
+export interface IHistorical {
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+  adjusted?: number;
 }
 
-export type TInterval = 'daily' | 'intraday' | 'weekly' | 'monthly';
+export type IInterval = 'daily' | 'intraday' | 'weekly' | 'monthly';
 
 export interface IHistoricals {
   [timestamp: string]: IHistorical;
 }
 
-interface IHistoricalsResponse {
+export interface IHistoricalsResponse {
   meta: IMeta;
   data: IHistoricals;
 }
@@ -43,7 +44,7 @@ export class HistoricalsClientService {
   /**
    * Expire age should be about 1/4 of the interval. Except for intraday. That is immediate.
    */
-  intervalToExpireAge(interval: TInterval) {
+  intervalToExpireAge(interval: IInterval) {
     switch (interval) {
       case 'intraday':
         return ONE_MINUTE;
@@ -58,19 +59,26 @@ export class HistoricalsClientService {
     }
   }
 
-  private intervalToParams(interval: TInterval) {
+  private intervalToParams(interval: IInterval) {
     if (interval === 'intraday') {
       // span is from robinhood api
       return { outputSize: 'full', interval: '5minute', span: 'day' };
+    } else if (interval === 'daily') {
+      return { outputSize: 'full' };
     } else {
       return { outputSize: 'compact' };
     }
   }
 
 
-  get(symbol: string, interval: TInterval) {
+  get(symbol: string, interval: IInterval) {
     const response: ICachedResponse<IHistoricalsResponse> = JSON.parse(window.localStorage.getItem(`historicals/${interval}/${symbol}`));
-    if (response && (Date.now() - response.localCacheTime < this.intervalToExpireAge(interval))) {
+    if (
+      response
+      && response.data
+      && (Date.now() - response.localCacheTime < this.intervalToExpireAge(interval))
+      // && response.meta.symbol !== 'NFLX'
+    ) {
       return of(response);
     }
     return this.http.get<IHistoricalsResponse>(`${this.baseUrl}/${interval}/${symbol}`, { params: this.intervalToParams(interval) })
