@@ -25,15 +25,22 @@ import { trigger, state, transition, style, animate } from '@angular/animations'
 })
 export class HoldingsTableComponent implements OnInit {
   public holdings: IHolding[] = [];
+
   // column ordering
   public displayedColumns: string[] = ['symbol', 'name', 'quantity', 'age', 'timestamp'];
+
   public dataSource: MatTableDataSource<IHolding>;
+
   @ViewChild(MatPaginator, { static: false })
   public paginator: MatPaginator;
+
   @ViewChild(MatSort, { static: false })
   public sort: MatSort;
+
   public totalQuantity = 0;
+
   public filterValue: string;
+
   // TODO: type expandedElement
   public expandedRow: IHolding | null;
 

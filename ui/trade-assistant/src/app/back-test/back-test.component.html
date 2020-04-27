@@ -50,8 +50,10 @@
       Submit
     </button>
   </form>
+  <app-back-test-results
+    *ngIf="results"
+    [results]="results"
+    [today]="today"
+  ></app-back-test-results>
+  <app-chart *ngIf="symbol" [symbol]="symbol"></app-chart>
 </div>
-<app-chart
-  *ngIf="formSubmitted"
-  [symbol]="tickerControl.value.toUpperCase()"
-></app-chart>

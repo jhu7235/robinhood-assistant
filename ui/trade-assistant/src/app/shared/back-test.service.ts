@@ -13,6 +13,7 @@ interface IData {
 }
 
 const TRADING_DAYS_PER_YEAR = 252;
+const INVESTMENT_INCREMENT = 500;
 
 @Injectable({
   providedIn: 'root'
@@ -116,8 +117,8 @@ export class BackTestService {
       const change = this.calcChange(oldHigh.value, today.historical.low);
       if (change.percent < percentageChange) {
         const dailyAverage = this.roundToHundredth(this.average(today.historical.open, today.historical.close));
-        cashIn += 100;
-        shares += 100 / dailyAverage;
+        cashIn += INVESTMENT_INCREMENT;
+        shares += INVESTMENT_INCREMENT / dailyAverage;
         oldHigh = {
           date: new Date(today.timestamp).getTime(),
           // sets the buy value as the oldHigh value
