@@ -1,0 +1,11 @@
+{
+  "name": "trade-assistant",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/jhu7235/robinhood-trade-history.git",
+  "author": "Jason Hu <jhu7235@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "deploy": "firebase use trade-assistant-fa3f0 && firebase deploy"
+  }
+}
