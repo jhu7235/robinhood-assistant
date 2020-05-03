@@ -1,5 +1,6 @@
 import alphavantage from 'alphavantage';
 import fs from "fs";
+import { saveToFirestore } from '../firebase/historical';
 import { IAlphaVantageHistoricalResponse } from './historical.types';
 
 export type IOutputSize = 'full' | 'compact';
@@ -55,7 +56,9 @@ class AlphaAdvantageWrapper {
    */
   public async getMonthly(symbol: string, outputSize: IOutputSize): Promise<IAlphaVantageHistoricalResponse> {
     const data = await this.alpha.data.monthly(symbol, outputSize, 'json');
-    return this.polish(data);
+    const polishedData = this.polish(data);
+    saveToFirestore(symbol, 'monthly', polishedData.data);
+    return polishedData;
   }
 
   private polish(unPolishedResponse): IAlphaVantageHistoricalResponse {
@@ -64,15 +67,15 @@ class AlphaAdvantageWrapper {
       if (response.data.hasOwnProperty(timestamp)) {
         response.data[timestamp] = {
           ...response.data[timestamp],
-          adjusted: response.data[timestamp].adjusted
-            ? Number(response.data[timestamp].adjusted)
-            : undefined,
           close: Number(response.data[timestamp].close),
           high: Number(response.data[timestamp].high),
           low: Number(response.data[timestamp].low),
           open: Number(response.data[timestamp].open),
           volume: Number(response.data[timestamp].volume),
         };
+        if (response.data[timestamp].adjusted) {
+          response.data[timestamp].adjusted = Number(response.data[timestamp].adjusted);
+        }
       }
     }
     return response as IAlphaVantageHistoricalResponse;

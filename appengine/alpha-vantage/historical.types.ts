@@ -6,7 +6,7 @@ interface IMeta {
   zone: string;
 }
 
-interface IHistorical {
+export interface IHistorical {
   open: number;
   high: number;
   low: number;
