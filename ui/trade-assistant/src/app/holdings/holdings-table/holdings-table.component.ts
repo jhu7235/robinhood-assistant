@@ -24,8 +24,6 @@ import { trigger, state, transition, style, animate } from '@angular/animations'
   ],
 })
 export class HoldingsTableComponent implements OnInit {
-  public holdings: IHolding[] = [];
-
   // column ordering
   public displayedColumns: string[] = ['symbol', 'name', 'quantity', 'age', 'timestamp'];
 
@@ -62,8 +60,8 @@ export class HoldingsTableComponent implements OnInit {
 
   public ngOnInit(): void {
     this.ordersClient.get().pipe().subscribe((orders) => {
-      this.holdings = this.holdingsService.buildHoldings(orders);
-      this.dataSource = new MatTableDataSource(this.holdings);
+      const holdings = this.holdingsService.buildHoldings(orders);
+      this.dataSource = new MatTableDataSource(holdings);
       // HACK: if set right away, this.holdings won't be used
       setTimeout(() => {
         this.dataSource.sort = this.sort;

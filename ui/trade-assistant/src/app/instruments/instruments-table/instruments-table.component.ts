@@ -18,5 +18,4 @@ export class InstrumentsTableComponent implements OnInit {
       this.instruments = instruments;
     });
   }
-
 }

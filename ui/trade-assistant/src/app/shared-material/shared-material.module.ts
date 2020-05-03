@@ -10,6 +10,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule } from '@angular/material/dialog';
 
 
 // a collection of all the material modules that are used.
@@ -25,6 +26,7 @@ const sharedMaterialModules = [
   MatFormFieldModule,
   ReactiveFormsModule,
   MatButtonModule,
+  MatDialogModule,
 ];
 
 @NgModule({
