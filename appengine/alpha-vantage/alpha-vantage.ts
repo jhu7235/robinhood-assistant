@@ -1,6 +1,6 @@
 import alphavantage from 'alphavantage';
 import fs from "fs";
-import { saveToFirestore } from '../firebase/historical';
+import { saveToFirestore, saveToFirestore2 } from '../firebase/historical';
 import { IAlphaVantageHistoricalResponse } from './historical.types';
 
 export type IOutputSize = 'full' | 'compact';
@@ -22,7 +22,9 @@ class AlphaAdvantageWrapper {
    */
   public async getDaily(symbol: string, outputSize: IOutputSize): Promise<IAlphaVantageHistoricalResponse> {
     const data = await this.alpha.data.daily_adjusted(symbol, outputSize, 'json');
-    return this.polish(data);
+    const polishedData = this.polish(data);
+    saveToFirestore2(symbol, 'daily', polishedData.data);
+    return polishedData;
   }
 
   /**
@@ -46,7 +48,9 @@ class AlphaAdvantageWrapper {
    */
   public async getWeekly(symbol: string, outputSize: IOutputSize): Promise<IAlphaVantageHistoricalResponse> {
     const data = await this.alpha.data.weekly(symbol, outputSize, 'json');
-    return this.polish(data);
+    const polishedData = this.polish(data);
+    saveToFirestore2(symbol, 'weekly', polishedData.data);
+    return polishedData;
   }
 
   /**
@@ -57,7 +61,7 @@ class AlphaAdvantageWrapper {
   public async getMonthly(symbol: string, outputSize: IOutputSize): Promise<IAlphaVantageHistoricalResponse> {
     const data = await this.alpha.data.monthly(symbol, outputSize, 'json');
     const polishedData = this.polish(data);
-    saveToFirestore(symbol, 'monthly', polishedData.data);
+    saveToFirestore2(symbol, 'monthly', polishedData.data);
     return polishedData;
   }
 

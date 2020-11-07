@@ -1,4 +1,6 @@
 import { IHistorical, IHistoricals } from '../alpha-vantage/historical.types';
+import { Logger } from '../Logger';
+import { DAY, HOUR } from '../time.contant';
 import firebase from './firebase';
 
 const BATCH_SIZE = 100;
@@ -10,22 +12,6 @@ interface IFirestoreHistorical extends IHistorical {
 }
 
 type IInterval = 'daily' | 'weekly' | 'monthly';
-
-class Logger {
-  constructor(private name: string) { }
-
-  public log(...parameter) {
-    console.log(`${this.name}:`, ...arguments);
-  }
-
-  public warn(...parameter) {
-    console.log(`${this.name}:`, ...parameter);
-  }
-
-  public info(...parameter) {
-    console.log(`${this.name}:`, ...parameter);
-  }
-}
 
 const logger = new Logger('Firebase Historical');
 
@@ -41,9 +27,7 @@ export async function saveToFirestore(
   // check last update timestamp
   const lastUpdatedTimestamp = await getLastUpdatedTimestamp(symbol, interval);
   logger.log('last updated', lastUpdatedTimestamp);
-  const timestamps = Object.keys(alphaVantageData)
-    .map((timestamp) => new Date(timestamp).getTime())
-    .sort((a, b) => a - b);
+  const timestamps = toSortedTimestamps(alphaVantageData);
   const timestampStrings = timestamps.map((timestamp) => new Date(timestamp).toISOString());
 
   let promises: Array<Promise<any>> = [];
@@ -58,6 +42,7 @@ export async function saveToFirestore(
       }, interval);
 
       promises.push(promise);
+      // process in batches to avoid crashes
       if (promises.length === BATCH_SIZE) {
         logger.log(`processing ${BATCH_SIZE} (${promises.length})`);
         await Promise.all(promises);
@@ -73,41 +58,25 @@ export async function saveToFirestore(
   await setLastUpdatedTimestamp(symbol, interval, trackingTimestamp);
 }
 
-function setLastUpdatedTimestamp(symbol: string, interval: IInterval, timestamp: number) {
-  logger.log(`updating last updated: ${timestamp}`);
-  return firebase.firestore().collection('updateHistories')
-    .where('symbol', '==', symbol)
-    .where('interval', '==', interval)
-    .get()
-    .then((querySnapshot) => {
-      if (querySnapshot.empty) {
-        firebase.firestore().collection('updateHistories').doc().create({
-          interval,
-          symbol,
-          timestamp,
-        });
-      } else {
-        querySnapshot.docs[0].ref.set({
-          timestamp,
-        });
-      }
-    });
-
+function toSortedTimestamps(alphaVantageData: IHistoricals): number[] {
+  return Object.keys(alphaVantageData)
+    .map((timestamp) => new Date(timestamp).getTime())
+    .sort((a, b) => a - b);
 }
-function getLastUpdatedTimestamp(symbol: string, interval: IInterval) {
-  return firebase.firestore().collection('updateHistories')
-    .where('symbol', '==', symbol)
-    .where('interval', '==', interval)
-    .get()
-    .then((querySnapshot) => {
-      let lastUpdated: number;
-      if (querySnapshot.size === 0) {
-        lastUpdated = 0;
-      } else {
-        lastUpdated = querySnapshot.docs[0].data().timestamp;
-      }
-      return lastUpdated;
-    });
+
+function setLastUpdatedTimestamp(symbol: string, interval: IInterval, timestamp: number) {
+  return firebase.firestore()
+    .collection('updateHistories')
+    .doc(`${interval}-${symbol}`)
+    .set({ timestamp });
+}
+
+async function getLastUpdatedTimestamp(symbol: string, interval: IInterval) {
+  const updateHistory = await firebase.firestore()
+    .collection('updateHistories')
+    .doc(`${interval}-${symbol}`)
+    .get();
+  return updateHistory.exists ? updateHistory.data().timestamp : 0;
 }
 
 /**
@@ -131,4 +100,36 @@ function getHistorical(symbol: string, interval: string, timestamp: number) {
     .where('timestamp', '==', timestamp)
     .get()
     .then((querySnapshot) => querySnapshot.docs[0]);
+}
+
+export async function saveToFirestore2(
+  symbol: string,
+  interval: IInterval,
+  alphaVantageData: IHistoricals,
+) {
+  const lastUpdatedTimestamp: number = await getLastUpdatedTimestamp(symbol, interval);
+  if (isExpired(lastUpdatedTimestamp, interval)) {
+    logger.log(`saving ${interval} ${symbol} to firebase`);
+    await firebase.firestore().collection(`${interval}Historicals`)
+      .doc(symbol)
+      .set(alphaVantageData);
+    await setLastUpdatedTimestamp(symbol, interval, Date.now());
+    logger.log(`saved ${interval} ${symbol} to firebase`);
+  }
+}
+
+function isExpired(timestamp: number, interval: IInterval) {
+  switch (interval) {
+    case 'daily':
+      return Date.now() - timestamp > 4 * HOUR;
+
+    case 'weekly':
+      return Date.now() - timestamp > 3 * DAY;
+
+    case 'monthly':
+      return Date.now() - timestamp > 7 * DAY;
+
+    default:
+      throw new Error('invalid interval');
+  }
 }
