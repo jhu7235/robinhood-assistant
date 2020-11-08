@@ -12,6 +12,26 @@ interface IData {
   historical: IHistorical;
 }
 
+export interface ITransaction {
+  today: IData;
+  trigger: {
+    percent: number;
+    value: number;
+  };
+  cashIn: number;
+  shares: number;
+  equity: number;
+  oneYearLater: IOneYearLater;
+}
+
+interface IOneYearLater {
+  change: {
+    value: number | null;
+    percent: number | null;
+  };
+  lossMoney: boolean;
+}
+
 const TRADING_DAYS_PER_YEAR = 252;
 const INVESTMENT_INCREMENT = 500;
 
@@ -20,7 +40,10 @@ const INVESTMENT_INCREMENT = 500;
 })
 export class BackTestService {
 
-  /** account for splits */
+  /**
+   * account for splits
+   * NOTE: we can deprecate this. Robinhood now includes a split field
+   */
   private accountForSplit(data: IData[]) {
     const historicals = data.map(({ timestamp, historical }) => {
       const splitFactor = historical.adjusted / historical.close;
@@ -93,7 +116,7 @@ export class BackTestService {
    * @param lookBackPeriod in days
    * @param percentageChange in fraction
    */
-  public run(historicalsResponse: IHistoricalsResponse, lookBackPeriod: number, percentageChange: number) {
+  public run(historicalsResponse: IHistoricalsResponse, lookBackPeriod: number, percentageChange: number): ITransaction[] {
     if (
       !historicalsResponse.meta.information ||
       !historicalsResponse.meta.information.toLocaleLowerCase().includes('daily')) {
@@ -102,7 +125,7 @@ export class BackTestService {
     const lookBackDifference = lookBackPeriod - 1;
     console.log(`back testing ${historicalsResponse.meta.symbol}`);
 
-    const transactions = [];
+    const transactions: ITransaction[] = [];
 
     const data = this.getSortedData(historicalsResponse);
     const historicals = this.accountForSplit(data);
