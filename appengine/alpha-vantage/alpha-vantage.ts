@@ -58,6 +58,10 @@ class AlphaAdvantageWrapper {
     return this.polish(data);
   }
 
+  /**
+   * Transform alpha advantage data format to more usable format.
+   * e.g. number is formatted as strings - convert to numbers
+   */
   private polish(unPolishedResponse): IAlphaVantageHistoricalResponse {
     const response = this.alpha.util.polish(unPolishedResponse);
     for (const timestamp in response.data) {
@@ -83,9 +87,7 @@ class AlphaAdvantageWrapper {
    */
   private getApiKey(): string {
     const data = fs.readFileSync("credentials.json", "utf8");
-    const keyIndex = Math.floor(Math.random() * 9);
-    console.log({ keyIndex });
-    return JSON.parse(data).alphaAdvantageApiKeys[keyIndex];
+    return JSON.parse(data).alphaAdvantageApiKey;
   }
 }
 
