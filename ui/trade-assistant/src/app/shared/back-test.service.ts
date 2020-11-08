@@ -93,7 +93,7 @@ export class BackTestService {
    * @param lookBackPeriod in days
    * @param percentageChange in fraction
    */
-  public by3Month(historicalsResponse: IHistoricalsResponse, lookBackPeriod: number, percentageChange: number) {
+  public run(historicalsResponse: IHistoricalsResponse, lookBackPeriod: number, percentageChange: number) {
     if (
       !historicalsResponse.meta.information ||
       !historicalsResponse.meta.information.toLocaleLowerCase().includes('daily')) {
