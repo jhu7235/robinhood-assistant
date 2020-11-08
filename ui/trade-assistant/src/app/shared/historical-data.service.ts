@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { IHistoricals } from './historicals-client.service';
 import { TWENTY_FOUR_HOURS } from './client-helper.functions';
+import { Chart } from 'chart.js';
 
 interface ITimeInterval {
   start: number;

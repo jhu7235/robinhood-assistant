@@ -9,19 +9,24 @@ import robinhood from './robinhood/robinhood';
 
 const app = express();
 
+function handleError(res, error) {
+  console.error(error);
+  res.status(500).send(error.message);
+}
+
 // allows calls from all origins
 // TODO: block origins
 app.use(cors());
 
 // TODO: make all paths auth protected and check that is logged into account
-
+// TODO: refactor resource paths into their own file
 app.get('/user', async (req, res) => {
   try {
     console.log('get user');
     const user = await robinhood.getUser();
     res.status(200).json(user);
   } catch (error) {
-    res.status(500).send(error.message);
+    handleError(res, error);
   }
 });
 
@@ -31,7 +36,7 @@ app.get('/quote/:symbol', async (req, res) => {
     const quote = await robinhood.getQuote(req.params.symbol);
     res.status(200).json(quote);
   } catch (error) {
-    res.status(500).send(error.message);
+    handleError(res, error);
   }
 });
 
@@ -41,7 +46,7 @@ app.get('/accounts', async (req, res) => {
     const accounts = await robinhood.getAccounts();
     res.status(200).json(accounts);
   } catch (error) {
-    res.status(500).send(error.message);
+    handleError(res, error);
   }
 });
 
@@ -51,7 +56,7 @@ app.get('/instruments', async (req, res) => {
     const instruments = await robinhood.getInstruments();
     res.status(200).json(instruments);
   } catch (error) {
-    res.status(500).send(error.message);
+    handleError(res, error);
   }
 });
 
@@ -64,7 +69,7 @@ app.get('/historicals/daily/:symbol', async (req, res) => {
     );
     res.status(200).json(historicals);
   } catch (error) {
-    res.status(500).send(error.message);
+    handleError(res, error);
   }
 });
 
@@ -79,7 +84,7 @@ app.get('/historicals/intraday/:symbol', async (req, res) => {
     );
     res.status(200).json(historicals);
   } catch (error) {
-    res.status(500).send(error.message);
+    handleError(res, error);
   }
 });
 
@@ -92,7 +97,7 @@ app.get('/historicals/weekly/:symbol', async (req, res) => {
     );
     res.status(200).json(historicals);
   } catch (error) {
-    res.status(500).send(error.message);
+    handleError(res, error);
   }
 });
 
@@ -105,7 +110,7 @@ app.get('/historicals/monthly/:symbol', async (req, res) => {
     );
     res.status(200).json(historicals);
   } catch (error) {
-    res.status(500).send(error.message);
+    handleError(res, error);
   }
 });
 
@@ -115,7 +120,7 @@ app.get('/positions', async (req, res) => {
     const positions = await robinhood.getPositions();
     res.status(200).json(positions);
   } catch (error) {
-    res.status(500).send(error.message);
+    handleError(res, error);
   }
 });
 
@@ -125,7 +130,7 @@ app.get('/orders', async (req, res) => {
     const orders = await robinhood.getOrders();
     res.status(200).json(orders);
   } catch (error) {
-    res.status(500).send(error.message);
+    handleError(res, error);
   }
 });
 

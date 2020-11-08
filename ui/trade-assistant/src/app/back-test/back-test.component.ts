@@ -55,7 +55,7 @@ export class BackTestComponent implements OnInit {
       this.subscription = this.historicalsClientService.get(this.tickerControl.value.toUpperCase(), 'daily')
         .subscribe((response) => {
           this.today = this.getLatestHistorical(response.data);
-          this.results = this.backTestService.by3Month(
+          this.results = this.backTestService.run(
             response,
             this.lookBackPeriodControl.value,
             this.percentageChangeControl.value / 100,

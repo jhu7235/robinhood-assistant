@@ -73,7 +73,9 @@ export class HoldingsService {
    * Robinhood executes sell orders. first in, first out
    */
   private removeSoldOrders(execution: IHolding, holdings: IHolding[]) {
-    while (execution.quantity > 0) {
+    // HACK: you can sell stocks that you've never held. For example,
+    // I'm not sure how I had SIRI stocks even though I've never bought any.
+    while (execution.quantity > 0 && holdings[0]) {
       let unexecutedQuantity = execution.quantity - holdings[0].quantity;
       if (unexecutedQuantity < 0) {
         unexecutedQuantity = 0;

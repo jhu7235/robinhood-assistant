@@ -30,6 +30,7 @@ export interface IHistoricals {
 export interface IHistoricalsResponse {
   meta: IMeta;
   data: IHistoricals;
+  localCacheTime: number;
 }
 
 @Injectable({
