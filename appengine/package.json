@@ -19,7 +19,7 @@
     "alphavantage": "^2.0.1",
     "cors": "^2.8.5",
     "express": "^4.16.3",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "query-string": "^4.3.2",
     "request": "^2.88.0",
     "robinhood": "^1.6.5",
