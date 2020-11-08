@@ -2,13 +2,14 @@ import fs from "fs";
 import Robinhood, { RobinhoodWebApi } from "robinhood";
 import { IAlphaVantageHistoricalResponse } from "../alpha-vantage/historical.types";
 import { async } from "../helpers";
-import { IRobinhoodAccountsResponse } from "./account.type";
-import { IInterval, IRobinhoodHistoricalsResponse, ISpan } from "./historicals.type";
-import { IRobinhoodInstrument } from "./instrument.type";
-import { IOrder, IOrderResponse, IRobinhoodOrdersResponse } from "./order.type";
-import { IPosition, IPositionResponse, IRobinhoodPositionResponse } from "./positions.type";
-import { IRobinhoodQuoteResponse } from "./quote.type";
-import { IRobinhoodUser } from "./user.type";
+import { IRobinhoodAccountsResponse } from "./types/account.type";
+import { ICredentials } from "./types/credentials.type";
+import { IInterval, IRobinhoodHistoricalsResponse, ISpan } from "./types/historicals.type";
+import { IRobinhoodInstrument } from "./types/instrument.type";
+import { IOrder, IOrderResponse, IRobinhoodOrdersResponse } from "./types/order.type";
+import { IPosition, IPositionResponse, IRobinhoodPositionResponse } from "./types/positions.type";
+import { IRobinhoodQuoteResponse } from "./types/quote.type";
+import { IRobinhoodUser } from "./types/user.type";
 
 /**
  * Wrapper around robinhood npm library

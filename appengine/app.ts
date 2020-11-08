@@ -4,8 +4,8 @@
 import cors from 'cors';
 import express from 'express';
 import alphaVantage, { IOutputSize } from './alpha-vantage/alpha-vantage';
-import { IInterval, ISpan } from './robinhood/historicals.type';
 import robinhood from './robinhood/robinhood';
+import { IInterval, ISpan } from './robinhood/types/historicals.type';
 
 const app = express();
 
@@ -141,4 +141,4 @@ app.listen(PORT, async () => {
   console.log('Press Ctrl+C to quit.');
 });
 
-module.exports = app;
+export {app};
