@@ -4,10 +4,22 @@ import { IAlphaVantageHistoricalResponse } from "../alpha-vantage/historical.typ
 import { async } from "../helpers";
 import { IRobinhoodAccountsResponse } from "./types/account.type";
 import { ICredentials } from "./types/credentials.type";
-import { IInterval, IRobinhoodHistoricalsResponse, ISpan } from "./types/historicals.type";
+import {
+  IInterval,
+  IRobinhoodHistoricalsResponse,
+  ISpan,
+} from "./types/historicals.type";
 import { IRobinhoodInstrument } from "./types/instrument.type";
-import { IOrder, IOrderResponse, IRobinhoodOrdersResponse } from "./types/order.type";
-import { IPosition, IPositionResponse, IRobinhoodPositionResponse } from "./types/positions.type";
+import {
+  IOrder,
+  IOrderResponse,
+  IRobinhoodOrdersResponse,
+} from "./types/order.type";
+import {
+  IPosition,
+  IPositionResponse,
+  IRobinhoodPositionResponse,
+} from "./types/positions.type";
 import { IRobinhoodQuoteResponse } from "./types/quote.type";
 import { IRobinhoodUser } from "./types/user.type";
 
@@ -18,7 +30,9 @@ class RobinhoodWrapper {
   private robinhood: RobinhoodWebApi;
   private initPromise: Promise<any>;
   // instrument cache
-  private instruments: { [instrumentId: string]: Promise<IRobinhoodInstrument> } = {};
+  private instruments: {
+    [instrumentId: string]: Promise<IRobinhoodInstrument>;
+  } = {};
 
   constructor() {
     this.sendCredentials();
@@ -29,12 +43,21 @@ class RobinhoodWrapper {
    */
   public async getPositions(): Promise<IPositionResponse> {
     await this.initPromise;
-    const positionResponse: IRobinhoodPositionResponse = await this.httpGet(this.robinhood.positions);
-    const promises = positionResponse.results.map(async (position): Promise<IPosition> => {
-      const instrument = await this.getInstrument(position.instrument);
-      return Object.assign({}, position, { symbol: instrument.symbol, simple_name: instrument.simple_name });
+    const positionResponse: IRobinhoodPositionResponse = await this.httpGet(
+      this.robinhood.positions
+    );
+    const promises = positionResponse.results.map(
+      async (position): Promise<IPosition> => {
+        const instrument = await this.getInstrument(position.instrument);
+        return Object.assign({}, position, {
+          symbol: instrument.symbol,
+          simple_name: instrument.simple_name,
+        });
+      }
+    );
+    return Object.assign({}, positionResponse, {
+      results: await Promise.all(promises),
     });
-    return Object.assign({}, positionResponse, { results: await Promise.all(promises) });
   }
 
   /**
@@ -45,7 +68,12 @@ class RobinhoodWrapper {
     this.initPromise = new Promise((resolve) => {
       this.robinhood = Robinhood(this.getCredentials(), resolve);
     });
-    this.initPromise.then(() => console.log('Robinhood authenticated', ...arguments));
+    this.initPromise
+      .then(() => this.getUser())
+      .then((user) => console.log("logged in:", user.email))
+      .catch(() => {
+        throw new Error("Login failed");
+      });
   }
 
   public async getUser(): Promise<IRobinhoodUser> {
@@ -76,18 +104,31 @@ class RobinhoodWrapper {
   /**
    * Fetch instrument from Robinhood if it's not already in cache
    */
-  public async getInstrument(instrumentId: string): Promise<IRobinhoodInstrument> {
+  public async getInstrument(
+    instrumentId: string
+  ): Promise<IRobinhoodInstrument> {
     await this.initPromise;
     // check cache first
     if (!this.instruments[instrumentId]) {
-      this.instruments[instrumentId] = this.httpGet(this.robinhood.url, instrumentId)
-        .then(async (instrument: IRobinhoodInstrument) => {
-          instrument.fundamentals = await this.httpGet(this.robinhood.url, `${instrument.fundamentals}`);
-          return instrument;
-        });
-      console.log('fetching instrument', (await this.instruments[instrumentId]).symbol);
+      this.instruments[instrumentId] = this.httpGet(
+        this.robinhood.url,
+        instrumentId
+      ).then(async (instrument: IRobinhoodInstrument) => {
+        instrument.fundamentals = await this.httpGet(
+          this.robinhood.url,
+          `${instrument.fundamentals}`
+        );
+        return instrument;
+      });
+      console.log(
+        "fetching instrument",
+        (await this.instruments[instrumentId]).symbol
+      );
     } else {
-      console.log('instrument in cache already', (await this.instruments[instrumentId]).symbol);
+      console.log(
+        "instrument in cache already",
+        (await this.instruments[instrumentId]).symbol
+      );
     }
     return this.instruments[instrumentId];
   }
@@ -101,25 +142,34 @@ class RobinhoodWrapper {
       ? await this.httpGet(this.robinhood.url, nextUrl)
       : await this.httpGet(this.robinhood.orders, null);
 
-    const promises = ordersResponse.results.map(async (order): Promise<IOrder> => {
-      const instrument = await this.getInstrument(order.instrument);
-      return Object.assign({}, order, { symbol: instrument.symbol, simple_name: instrument.simple_name });
+    const promises = ordersResponse.results.map(
+      async (order): Promise<IOrder> => {
+        const instrument = await this.getInstrument(order.instrument);
+        return Object.assign({}, order, {
+          symbol: instrument.symbol,
+          simple_name: instrument.simple_name,
+        });
+      }
+    );
+    const nextResults = ordersResponse.next
+      ? (await this.getOrders(ordersResponse.next)).results
+      : [];
+    return Object.assign({}, ordersResponse, {
+      results: [...(await Promise.all(promises)), ...nextResults],
     });
-    const nextResults = ordersResponse.next ? (await this.getOrders(ordersResponse.next)).results : [];
-    return Object.assign({}, ordersResponse, { results: [...await Promise.all(promises), ...nextResults] });
   }
 
   public async getHistoricals(
     symbol: string,
     interval: IInterval,
-    span: ISpan,
+    span: ISpan
   ): Promise<IAlphaVantageHistoricalResponse> {
     await this.initPromise;
     const response: IRobinhoodHistoricalsResponse = await this.httpGet(
       this.robinhood.historicals,
       symbol,
       interval,
-      span,
+      span
     );
     const fakeAVResponse: any = {
       data: {},
