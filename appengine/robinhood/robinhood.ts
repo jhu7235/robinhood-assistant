@@ -10,6 +10,7 @@ import {
   ISpan,
 } from "./types/historicals.type";
 import { IRobinhoodInstrument } from "./types/instrument.type";
+import { IRobinhoodOptionsOrdersResponse } from "./types/option.type";
 import {
   IOrder,
   IOrderResponse,
@@ -22,6 +23,8 @@ import {
 } from "./types/positions.type";
 import { IRobinhoodQuoteResponse } from "./types/quote.type";
 import { IRobinhoodUser } from "./types/user.type";
+
+const OPTIONS_ORDERS_URL = "https://api.robinhood.com/options/orders/";
 
 /**
  * Wrapper around robinhood npm library
@@ -70,7 +73,7 @@ class RobinhoodWrapper {
     });
     this.initPromise
       .then(() => this.getUser())
-      .then((user) => console.log("logged in:", user.email))
+      .then((user) => console.log("Robinhood: logged in:", user.email))
       .catch(() => {
         throw new Error("Login failed");
       });
@@ -157,6 +160,26 @@ class RobinhoodWrapper {
     return Object.assign({}, ordersResponse, {
       results: [...(await Promise.all(promises)), ...nextResults],
     });
+  }
+
+  /**
+   * Recursively gets options orders, and sends back a 
+   * @param nextUrl curser url
+   */
+  public async getOptionsOrders(nextUrl?: string): Promise<IRobinhoodOptionsOrdersResponse> {
+    await this.initPromise;
+    const ordersResponse: IRobinhoodOptionsOrdersResponse = nextUrl
+      ? await this.httpGet(this.robinhood.url, nextUrl)
+      : await this.httpGet(this.robinhood.url, OPTIONS_ORDERS_URL);
+
+    const nextResults =
+      ordersResponse.next
+        ? (await this.getOptionsOrders(ordersResponse.next)).results
+        : [];
+
+    ordersResponse.results = [...ordersResponse.results, ...nextResults];
+
+    return ordersResponse;
   }
 
   public async getHistoricals(

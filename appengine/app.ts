@@ -134,6 +134,16 @@ app.get('/orders', async (req, res) => {
   }
 });
 
+app.get('/options/orders', async (req, res) => {
+  try {
+    console.log('get option orders');
+    const orders = await robinhood.getOptionsOrders();
+    res.status(200).json(orders);
+  } catch (error) {
+    handleError(res, error);
+  }
+});
+
 // Start the server
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, async () => {

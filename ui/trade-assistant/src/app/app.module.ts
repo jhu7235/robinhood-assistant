@@ -10,6 +10,7 @@ import { SharedModule } from './shared/shared.module';
 import { SharedMaterialModule } from './shared-material/shared-material.module';
 import { InstrumentsModule } from './instruments/instruments.module';
 import { BackTestModule } from './back-test/back-test.module';
+import { OptionsTransactionsModule } from './options-transactions/options-transactions.module';
 
 
 @NgModule({
@@ -25,6 +26,7 @@ import { BackTestModule } from './back-test/back-test.module';
     SharedModule,
     InstrumentsModule,
     BackTestModule,
+    OptionsTransactionsModule,
 
     SharedMaterialModule,
     BrowserAnimationsModule,
