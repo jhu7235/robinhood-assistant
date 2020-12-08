@@ -5,7 +5,7 @@ import { of, Observable } from 'rxjs';
 import { FOUR_HOURS, ICachedResponse } from './client-helper.functions';
 
 // NOTE: do not edit this. This is copied over from option.type.ts
-export interface IRobinhoodOptionsOrdersResponse {
+interface IRobinhoodOptionsOrdersResponse {
   next: string;
   previous: string;
   detail: string;
@@ -13,20 +13,28 @@ export interface IRobinhoodOptionsOrdersResponse {
 }
 
 interface IRobinhoodOptionLegs {
-  executions: any[];
+  executions: IOptionsExecution[];
   id: string;
   option: string; // url
-  position_effect: "close" | "open";
+  position_effect: 'close' | 'open';
   ratio_quantity: number;
-  side: "sell" | "buy";
+  side: 'sell' | 'buy';
 }
 
-interface IRobinhoodOptionsOrder {
+export interface IOptionsExecution   {
+  id: string;
+  price: string; // number
+  quantity: string; // number
+  settlement_date: string; // date string ("2020-11-05")
+  timestamp: string; // date string ("2020-11-28T13:18:15.215197Z")
+}
+
+export interface IRobinhoodOptionsOrder {
   cancel_url: string; // url
   canceled_quantity: string; // number
   created_at: string; // date string ("2020-11-28T13:18:15.215197Z")
-  direction: "credit" | "debit";
-  id: "3dd1e049-43f0-4f41-9b35-622665d1f0c9";
+  direction: 'credit' | 'debit';
+  id: 'string';
   legs: IRobinhoodOptionLegs[];
   pending_quantity: string; // number
   premium: string; // number
@@ -35,16 +43,16 @@ interface IRobinhoodOptionsOrder {
   processed_quantity: string; // number
   quantity: string; // number
   ref_id: string;
-  state: "queued" | "confirmed" | "cancelled" | "filled" | "rejected";
-  time_in_force: "gtc";
-  trigger: "immediate";
-  type: "limit" | "market";
+  state: 'queued' | 'confirmed' | 'cancelled' | 'filled' | 'rejected';
+  time_in_force: 'gtc';
+  trigger: 'immediate';
+  type: 'limit' | 'market';
   updated_at: string; // date string ("2020-11-28T13:18:15.215197Z")
   chain_id: string;
   chain_symbol: string; // stock ticker symbol
   response_category: null;
   opening_strategy: null;
-  closing_strategy: "long_call_spread"; // TODO: update this
+  closing_strategy: string; // TODO: update this ('long_call_spread')
   stop_price: string; // number
 }
 

@@ -1,1 +1,59 @@
-<p>transactions works!</p>
+<table *ngIf="dataSource" mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
+  
+    <!-- Symbol Column -->
+    <ng-container matColumnDef="symbol">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Symbol </th>
+      <td mat-cell *matCellDef="let element"> {{element.symbol}} </td>
+    </ng-container>
+  
+    <!-- Symbol Column -->
+    <ng-container matColumnDef="date">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Execution Date </th>
+      <td mat-cell *matCellDef="let element"> {{element.date | date : 'M/d/yyyy, h:mm a'}} </td>
+    </ng-container>
+  
+    <!-- Symbol Column -->
+    <ng-container matColumnDef="quantity">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Quantity </th>
+      <td mat-cell *matCellDef="let element"> {{element.quantity | number:'1.0-0'}} </td>
+    </ng-container>
+  
+    <!-- Symbol Column -->
+    <!-- <ng-container matColumnDef="strike">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Strike </th>
+      <td mat-cell *matCellDef="let element"> unknown </td>
+    </ng-container> -->
+  
+    <!-- Symbol Column -->
+    <ng-container matColumnDef="cost">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Cost </th>
+      <td mat-cell *matCellDef="let element"> {{element.cost | currency}} </td>
+    </ng-container>  
+
+    <!-- Symbol Column -->
+    <ng-container matColumnDef="earning">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Earning </th>
+      <td mat-cell *matCellDef="let element"> {{element.earning | currency}} </td>
+    </ng-container>  
+
+    <!-- Symbol Column -->
+    <ng-container matColumnDef="effect">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Effect </th>
+      <td mat-cell *matCellDef="let element"> {{element.effect}} </td>
+    </ng-container>
+  
+    <!-- Symbol Column -->
+    <ng-container matColumnDef="strategy">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Strategy </th>
+      <td mat-cell *matCellDef="let element"> {{element.strategy}} </td>
+    </ng-container>
+  
+    <!-- Symbol Column -->
+    <ng-container matColumnDef="valueToDate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Value To Date </th>
+      <td mat-cell *matCellDef="let element"> {{element.valueToDate | currency}} </td>
+    </ng-container>
+  
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
